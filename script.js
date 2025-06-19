@@ -17,7 +17,7 @@ async function loadSmogonData() {
     const month = document.getElementById('monthSelect').value;
     const elo = document.getElementById('eloSelect').value;
     
-    const url = `https://www.smogon.com/stats/${month}/chaos/gen9vgc2025regibo3-${elo}.json`;
+    const url = `/api/smogon/${month}/${elo}`;
     
     document.getElementById('loadStatus').innerHTML = `<strong>📡 Descargando datos de ${month} (ELO ${elo}+)...</strong>`;
     document.getElementById('loading').style.display = 'block';
