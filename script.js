@@ -6,8 +6,15 @@ let currentSort = 'usage';
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('loadDataBtn').addEventListener('click', loadSmogonData);
-    document.getElementById('searchPokemon').addEventListener('input', filterResults);
-    document.getElementById('searchEVs').addEventListener('input', filterResults);
+    document.getElementById('applyFilterBtn').addEventListener('click', filterResults);
+    
+    // Allow Enter key to trigger filtering in search inputs
+    document.getElementById('searchPokemon').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') filterResults();
+    });
+    document.getElementById('searchEVs').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') filterResults();
+    });
 });
 
 /**
@@ -308,7 +315,7 @@ function displayResults() {
     
     for (const [pokemonName, spreads] of sortedPokemon) {
         html += `<div class="pokemon-card">`;
-        html += `<div class="pokemon-name">${pokemonName}</div>`;
+        html += `<div class="pokemon-name">${pokemonName} <span class="set-count">(${spreads.length} sets)</span></div>`;
         
         for (const spread of spreads) {
             const evs = spread.evs;

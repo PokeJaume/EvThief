@@ -34,7 +34,7 @@
                     <select id="eloSelect" class="data-select">
                         <option value="1500">1500+ (Principiante)</option>
                         <option value="1630" selected>1630+ (Intermedio)</option>
-                        <option value="1750">1750+ (Avanzado)</option>
+                        <option value="1760">1760+ (Avanzado)</option>
                     </select>
                 </div>
             </div>
@@ -48,6 +48,7 @@
             <input type="text" id="searchPokemon" class="search-input" placeholder="Nombre del Pokémon (ej: Urshifu, Rillaboom, etc.)">
             <input type="text" id="searchEVs" class="search-input" placeholder="EVs específicos (ej: 252/0/4/0/0/252 o HP:252,Atk:252)">
             <div class="filter-buttons">
+                <button class="filter-btn" id="applyFilterBtn">🔍 Aplicar filtros</button>
                 <button class="filter-btn" onclick="sortBy('usage')">🔥 Ordenar por uso</button>
                 <button class="filter-btn" onclick="sortBy('name')">📝 Ordenar por nombre</button>
                 <button class="filter-btn" onclick="toggleOnlyPopular()">⭐ Solo populares (>5%)</button>
