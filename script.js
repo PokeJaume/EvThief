@@ -1,0 +1,374 @@
+let pokemonData = {};
+let filteredData = {};
+let showOnlyPopular = false;
+let currentSort = 'usage';
+
+// Event listeners
+document.getElementById('jsonFile').addEventListener('change', handleFileSelect);
+document.getElementById('searchPokemon').addEventListener('input', filterResults);
+document.getElementById('searchEVs').addEventListener('input', filterResults);
+
+/**
+ * Handle file selection and processing
+ */
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    document.getElementById('fileName').innerHTML = `<strong>📄 ${file.name}</strong>`;
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('statsummary').style.display = 'none';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            processSmogonData(data);
+        } catch (error) {
+            showError('Error al leer el archivo JSON. Asegúrate de que sea un archivo válido de Smogon chaos.');
+            console.error('Error parsing JSON:', error);
+        }
+    };
+    reader.readAsText(file);
+}
+
+/**
+ * Process Smogon data from the uploaded JSON file
+ */
+function processSmogonData(data) {
+    pokemonData = {};
+    let totalSpreads = 0;
+    
+    // Debug: show JSON structure
+    console.log('Estructura del JSON:', Object.keys(data).slice(0, 5));
+    console.log('Primera entrada:', Object.entries(data)[0]);
+    
+    // Handle Smogon chaos structure with data.data
+    const dataToProcess = data.data || data;
+    
+    // Process each Pokémon in the JSON
+    for (const [pokemonName, pokemonInfo] of Object.entries(dataToProcess)) {
+        console.log(`Procesando ${pokemonName}:`, Object.keys(pokemonInfo));
+        
+        // Handle different JSON structures
+        let spreadsData = null;
+        let totalCount = 0;
+        
+        if (pokemonInfo.Spreads) {
+            // Current chaos structure: pokemonInfo.Spreads
+            spreadsData = pokemonInfo.Spreads;
+            totalCount = pokemonInfo["Raw count"] || 0;
+        } else if (pokemonInfo.Raw && pokemonInfo.Raw.spreads) {
+            // Alternative chaos structure
+            spreadsData = pokemonInfo.Raw.spreads;
+            totalCount = pokemonInfo.Raw.count;
+        } else if (pokemonInfo.spreads) {
+            // Alternative lowercase structure
+            spreadsData = pokemonInfo.spreads;
+            totalCount = pokemonInfo.count || pokemonInfo["raw count"] || 0;
+        }
+        
+        if (!spreadsData) {
+            console.log(`No se encontraron spreads para ${pokemonName}`);
+            continue;
+        }
+
+        const spreads = [];
+        
+        // Process each spread
+        for (const [spreadString, usage] of Object.entries(spreadsData)) {
+            // Verify valid spread format (Nature:HP/Atk/Def/SpA/SpD/Spe)
+            if (!spreadString.includes(':') || !spreadString.includes('/')) continue;
+            
+            const evs = parseEVSpread(spreadString);
+            const usageNum = parseFloat(usage) || 0;
+            const percentage = totalCount > 0 ? ((usageNum / totalCount) * 100).toFixed(2) : '0.00';
+            
+            spreads.push({
+                spread: spreadString,
+                evs: evs,
+                usage: usageNum,
+                percentage: parseFloat(percentage),
+                formattedPercentage: percentage + '%'
+            });
+            
+            totalSpreads++;
+        }
+        
+        if (spreads.length > 0) {
+            // Sort spreads by usage (highest first)
+            spreads.sort((a, b) => b.percentage - a.percentage);
+            pokemonData[pokemonName] = spreads;
+        }
+    }
+    
+    document.getElementById('loading').style.display = 'none';
+    
+    if (Object.keys(pokemonData).length === 0) {
+        showError('No se encontraron datos válidos de EV spreads en el archivo. Verifica que sea un archivo chaos de Smogon válido.');
+        return;
+    }
+    
+    console.log(`Procesados ${Object.keys(pokemonData).length} Pokémon con ${totalSpreads} spreads`);
+    
+    // Update statistics
+    updateStatistics();
+    
+    // Display results
+    filteredData = { ...pokemonData };
+    displayResults();
+}
+
+/**
+ * Parse EV spread string into individual stats
+ */
+function parseEVSpread(spreadString) {
+    try {
+        // Format: "Nature:HP/Atk/Def/SpA/SpD/Spe"
+        const parts = spreadString.split(':');
+        if (parts.length !== 2) return null;
+        
+        const nature = parts[0];
+        const evParts = parts[1].split('/');
+        
+        if (evParts.length !== 6) return null;
+        
+        return {
+            nature: nature,
+            hp: parseInt(evParts[0]) || 0,
+            atk: parseInt(evParts[1]) || 0,
+            def: parseInt(evParts[2]) || 0,
+            spa: parseInt(evParts[3]) || 0,
+            spd: parseInt(evParts[4]) || 0,
+            spe: parseInt(evParts[5]) || 0
+        };
+    } catch (error) {
+        console.error('Error parsing EV spread:', spreadString, error);
+        return null;
+    }
+}
+
+/**
+ * Display error message
+ */
+function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').textContent = message;
+    document.getElementById('error').style.display = 'block';
+}
+
+/**
+ * Update statistics display
+ */
+function updateStatistics() {
+    const totalPokemon = Object.keys(pokemonData).length;
+    const totalSpreads = Object.values(pokemonData).reduce((sum, spreads) => sum + spreads.length, 0);
+    const avgSpreads = totalPokemon > 0 ? (totalSpreads / totalPokemon).toFixed(1) : 0;
+    
+    document.getElementById('totalPokemon').textContent = totalPokemon;
+    document.getElementById('totalSpreads').textContent = totalSpreads;
+    document.getElementById('avgSpreads').textContent = avgSpreads;
+    document.getElementById('statsummary').style.display = 'block';
+}
+
+/**
+ * Filter results based on search criteria
+ */
+function filterResults() {
+    const pokemonSearch = document.getElementById('searchPokemon').value.toLowerCase().trim();
+    const evSearch = document.getElementById('searchEVs').value.toLowerCase().trim();
+    
+    filteredData = {};
+    
+    for (const [pokemonName, spreads] of Object.entries(pokemonData)) {
+        // Filter by Pokémon name
+        if (pokemonSearch && !pokemonName.toLowerCase().includes(pokemonSearch)) {
+            continue;
+        }
+        
+        let filteredSpreads = spreads;
+        
+        // Filter by EV spread
+        if (evSearch) {
+            filteredSpreads = spreads.filter(spread => {
+                return matchesEVSearch(spread, evSearch);
+            });
+        }
+        
+        // Filter by popularity
+        if (showOnlyPopular) {
+            filteredSpreads = filteredSpreads.filter(spread => spread.percentage > 5);
+        }
+        
+        if (filteredSpreads.length > 0) {
+            filteredData[pokemonName] = filteredSpreads;
+        }
+    }
+    
+    displayResults();
+}
+
+/**
+ * Check if a spread matches the EV search criteria
+ */
+function matchesEVSearch(spread, evSearch) {
+    // Support different formats:
+    // 1. "252/0/4/0/0/252" - traditional format
+    // 2. "HP:252,Atk:252" - stat:value format
+    // 3. "252 252" - space separated
+    
+    const spreadStr = spread.spread.toLowerCase();
+    const evs = spread.evs;
+    
+    if (!evs) return false;
+    
+    // Format 1: Traditional slash-separated format
+    if (evSearch.includes('/')) {
+        const searchParts = evSearch.split('/').map(part => parseInt(part.trim()) || 0);
+        if (searchParts.length === 6) {
+            return searchParts[0] === evs.hp &&
+                   searchParts[1] === evs.atk &&
+                   searchParts[2] === evs.def &&
+                   searchParts[3] === evs.spa &&
+                   searchParts[4] === evs.spd &&
+                   searchParts[5] === evs.spe;
+        }
+    }
+    
+    // Format 2: Stat:value format
+    if (evSearch.includes(':')) {
+        const statMappings = {
+            'hp': evs.hp, 'health': evs.hp,
+            'atk': evs.atk, 'attack': evs.atk, 'att': evs.atk,
+            'def': evs.def, 'defense': evs.def,
+            'spa': evs.spa, 'spatk': evs.spa, 'special attack': evs.spa, 'sp.atk': evs.spa,
+            'spd': evs.spd, 'spdef': evs.spd, 'special defense': evs.spd, 'sp.def': evs.spd,
+            'spe': evs.spe, 'speed': evs.spe, 'spd': evs.spe
+        };
+        
+        const searchPairs = evSearch.split(',');
+        return searchPairs.every(pair => {
+            const [stat, value] = pair.split(':').map(s => s.trim());
+            const expectedValue = parseInt(value) || 0;
+            const actualValue = statMappings[stat.toLowerCase()] || 0;
+            return actualValue === expectedValue;
+        });
+    }
+    
+    // Fallback: simple string inclusion
+    return spreadStr.includes(evSearch);
+}
+
+/**
+ * Display filtered results
+ */
+function displayResults() {
+    const resultsDiv = document.getElementById('results');
+    
+    if (Object.keys(filteredData).length === 0) {
+        resultsDiv.innerHTML = '<div class="error-message">No se encontraron resultados que coincidan con los criterios de búsqueda.</div>';
+        resultsDiv.style.display = 'block';
+        return;
+    }
+    
+    // Sort Pokémon based on current sort method
+    const sortedPokemon = Object.entries(filteredData).sort((a, b) => {
+        if (currentSort === 'name') {
+            return a[0].localeCompare(b[0]);
+        } else {
+            // Sort by highest usage of top spread
+            const aTopUsage = a[1][0]?.percentage || 0;
+            const bTopUsage = b[1][0]?.percentage || 0;
+            return bTopUsage - aTopUsage;
+        }
+    });
+    
+    let html = '';
+    
+    for (const [pokemonName, spreads] of sortedPokemon) {
+        html += `<div class="pokemon-card">`;
+        html += `<div class="pokemon-name">${pokemonName}</div>`;
+        
+        for (const spread of spreads) {
+            const evs = spread.evs;
+            if (!evs) continue;
+            
+            // Color code usage percentage
+            let usageClass = 'usage-percent';
+            if (spread.percentage > 20) usageClass += ' high-usage';
+            else if (spread.percentage > 10) usageClass += ' medium-usage';
+            else usageClass += ' low-usage';
+            
+            html += `<div class="ev-spread">`;
+            html += `<div class="ev-values">`;
+            html += `<span class="ev-stat">HP: ${evs.hp}</span>`;
+            html += `<span class="ev-stat">Atk: ${evs.atk}</span>`;
+            html += `<span class="ev-stat">Def: ${evs.def}</span>`;
+            html += `<span class="ev-stat">SpA: ${evs.spa}</span>`;
+            html += `<span class="ev-stat">SpD: ${evs.spd}</span>`;
+            html += `<span class="ev-stat">Spe: ${evs.spe}</span>`;
+            html += `<span class="ev-stat nature">${evs.nature}</span>`;
+            html += `</div>`;
+            html += `<div class="${usageClass}">${spread.formattedPercentage}</div>`;
+            html += `</div>`;
+        }
+        
+        html += `</div>`;
+    }
+    
+    resultsDiv.innerHTML = html;
+    resultsDiv.style.display = 'block';
+}
+
+/**
+ * Sort results by specified criteria
+ */
+function sortBy(method) {
+    currentSort = method;
+    
+    // Update button states
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    if (method === 'usage') {
+        document.querySelector('button[onclick="sortBy(\'usage\')"]').classList.add('active');
+    } else if (method === 'name') {
+        document.querySelector('button[onclick="sortBy(\'name\')"]').classList.add('active');
+    }
+    
+    displayResults();
+}
+
+/**
+ * Toggle showing only popular spreads (>5%)
+ */
+function toggleOnlyPopular() {
+    showOnlyPopular = !showOnlyPopular;
+    
+    const btn = document.querySelector('button[onclick="toggleOnlyPopular()"]');
+    if (showOnlyPopular) {
+        btn.classList.add('active');
+        btn.textContent = '⭐ Mostrando populares';
+    } else {
+        btn.classList.remove('active');
+        btn.textContent = '⭐ Solo populares (>5%)';
+    }
+    
+    filterResults();
+}
+
+// Add additional CSS for usage percentage color coding
+const additionalStyles = `
+    .usage-percent.high-usage { background: #e74c3c; }
+    .usage-percent.medium-usage { background: #f39c12; }
+    .usage-percent.low-usage { background: #4ecdc4; }
+    .ev-stat.nature { background: #9b59b6; }
+`;
+
+// Inject additional styles
+const styleSheet = document.createElement('style');
+styleSheet.textContent = additionalStyles;
+document.head.appendChild(styleSheet);

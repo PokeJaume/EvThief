@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de EV Spreads de Smogon</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Analizador de EV Spreads de Smogon</h1>
+        
+        <div class="upload-section">
+            <h2>📁 Cargar archivo JSON de Smogon</h2>
+            <p>Sube tu archivo chaos JSON de Smogon para analizar las combinaciones de EV spreads</p>
+            <div class="file-input-wrapper">
+                <input type="file" id="jsonFile" class="file-input" accept=".json">
+                <label for="jsonFile" class="file-input-button">🚀 Seleccionar archivo JSON</label>
+            </div>
+            <div id="fileName"></div>
+        </div>
+        
+        <div class="search-section">
+            <h3>🔎 Buscar EV Spread específico</h3>
+            <input type="text" id="searchPokemon" class="search-input" placeholder="Nombre del Pokémon (ej: Urshifu, Rillaboom, etc.)">
+            <input type="text" id="searchEVs" class="search-input" placeholder="EVs específicos (ej: 252/0/4/0/0/252 o HP:252,Atk:252)">
+            <div class="filter-buttons">
+                <button class="filter-btn" onclick="sortBy('usage')">🔥 Ordenar por uso</button>
+                <button class="filter-btn" onclick="sortBy('name')">📝 Ordenar por nombre</button>
+                <button class="filter-btn" onclick="toggleOnlyPopular()">⭐ Solo populares (>5%)</button>
+            </div>
+        </div>
+        
+        <div id="statsummary" class="stats-summary" style="display:none;">
+            <h3>📊 Resumen de datos</h3>
+            <div class="stat-item">
+                <span id="totalPokemon" class="stat-number">0</span>
+                <span class="stat-label">Pokémon únicos</span>
+            </div>
+            <div class="stat-item">
+                <span id="totalSpreads" class="stat-number">0</span>
+                <span class="stat-label">EV Spreads únicos</span>
+            </div>
+            <div class="stat-item">
+                <span id="avgSpreads" class="stat-number">0</span>
+                <span class="stat-label">Promedio por Pokémon</span>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading" style="display:none;">Analizando datos</div>
+        <div id="error" class="error-message" style="display:none;"></div>
+        <div id="results" class="results-section"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
