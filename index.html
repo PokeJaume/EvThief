@@ -11,13 +11,36 @@
         <h1>🔍 Analizador de EV Spreads de Smogon</h1>
         
         <div class="upload-section">
-            <h2>📁 Cargar archivo JSON de Smogon</h2>
-            <p>Sube tu archivo chaos JSON de Smogon para analizar las combinaciones de EV spreads</p>
-            <div class="file-input-wrapper">
-                <input type="file" id="jsonFile" class="file-input" accept=".json">
-                <label for="jsonFile" class="file-input-button">🚀 Seleccionar archivo JSON</label>
+            <h2>📊 Descargar datos de Smogon</h2>
+            <p>Selecciona el periodo y nivel competitivo para analizar los EV spreads</p>
+            
+            <div class="data-controls">
+                <div class="control-group">
+                    <label for="monthSelect">📅 Mes/Año:</label>
+                    <select id="monthSelect" class="data-select">
+                        <option value="2025-05">Mayo 2025</option>
+                        <option value="2025-04">Abril 2025</option>
+                        <option value="2025-03">Marzo 2025</option>
+                        <option value="2025-02">Febrero 2025</option>
+                        <option value="2025-01">Enero 2025</option>
+                        <option value="2024-12">Diciembre 2024</option>
+                        <option value="2024-11">Noviembre 2024</option>
+                        <option value="2024-10">Octubre 2024</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="eloSelect">🏆 Nivel ELO:</label>
+                    <select id="eloSelect" class="data-select">
+                        <option value="1500">1500+ (Principiante)</option>
+                        <option value="1630" selected>1630+ (Intermedio)</option>
+                        <option value="1750">1750+ (Avanzado)</option>
+                    </select>
+                </div>
             </div>
-            <div id="fileName"></div>
+            
+            <button id="loadDataBtn" class="file-input-button">🚀 Cargar datos de Smogon</button>
+            <div id="loadStatus"></div>
         </div>
         
         <div class="search-section">

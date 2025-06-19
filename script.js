@@ -4,34 +4,53 @@ let showOnlyPopular = false;
 let currentSort = 'usage';
 
 // Event listeners
-document.getElementById('jsonFile').addEventListener('change', handleFileSelect);
-document.getElementById('searchPokemon').addEventListener('input', filterResults);
-document.getElementById('searchEVs').addEventListener('input', filterResults);
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('loadDataBtn').addEventListener('click', loadSmogonData);
+    document.getElementById('searchPokemon').addEventListener('input', filterResults);
+    document.getElementById('searchEVs').addEventListener('input', filterResults);
+});
 
 /**
- * Handle file selection and processing
+ * Load data from Smogon servers
  */
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    document.getElementById('fileName').innerHTML = `<strong>📄 ${file.name}</strong>`;
+async function loadSmogonData() {
+    const month = document.getElementById('monthSelect').value;
+    const elo = document.getElementById('eloSelect').value;
+    
+    const url = `https://www.smogon.com/stats/${month}/chaos/gen9vgc2025regibo3-${elo}.json`;
+    
+    document.getElementById('loadStatus').innerHTML = `<strong>📡 Descargando datos de ${month} (ELO ${elo}+)...</strong>`;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('statsummary').style.display = 'none';
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            processSmogonData(data);
-        } catch (error) {
-            showError('Error al leer el archivo JSON. Asegúrate de que sea un archivo válido de Smogon chaos.');
-            console.error('Error parsing JSON:', error);
+    
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
         }
-    };
-    reader.readAsText(file);
+        
+        const data = await response.json();
+        document.getElementById('loadStatus').innerHTML = `<strong>✅ Datos cargados exitosamente</strong>`;
+        processSmogonData(data);
+        
+    } catch (error) {
+        console.error('Error loading Smogon data:', error);
+        let errorMessage = 'Error al cargar los datos de Smogon. ';
+        
+        if (error.message.includes('HTTP: 404')) {
+            errorMessage += 'Los datos para este mes/ELO no están disponibles.';
+        } else if (error.message.includes('Failed to fetch')) {
+            errorMessage += 'Problema de conexión. Verifica tu conexión a internet.';
+        } else {
+            errorMessage += `Detalles: ${error.message}`;
+        }
+        
+        showError(errorMessage);
+        document.getElementById('loadStatus').innerHTML = `<strong>❌ Error al cargar datos</strong>`;
+    }
 }
 
 /**

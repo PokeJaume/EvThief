@@ -83,9 +83,18 @@ This is a web-based tool for analyzing EV (Effort Value) spreads from Smogon's P
 - **CDN**: Suitable for CDN deployment for global distribution
 - **Container**: Current Python server setup is containerizable
 
+## Recent Changes
+
+- June 19, 2025: Modified application to fetch data directly from Smogon servers instead of file uploads
+- Added ELO level selector (1500, 1630, 1750) with descriptive labels
+- Added month/year selector for different time periods
+- Implemented async data loading with proper error handling
+- Updated UI to show loading status and connection feedback
+
 ## Changelog
 
-- June 19, 2025. Initial setup
+- June 19, 2025: Initial setup
+- June 19, 2025: Integrated direct Smogon API data fetching
 
 ## User Preferences
 
