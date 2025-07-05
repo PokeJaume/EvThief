@@ -5,6 +5,7 @@ let currentSort = 'usage';
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    populateMonthOptions();
     document.getElementById('loadDataBtn').addEventListener('click', loadSmogonData);
     document.getElementById('applyFilterBtn').addEventListener('click', filterResults);
     
@@ -16,6 +17,65 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') filterResults();
     });
 });
+
+/**
+ * Populate month options based on current date and availability rules
+ */
+function populateMonthOptions() {
+    const monthSelect = document.getElementById('monthSelect');
+    const currentDate = new Date();
+    const currentDay = currentDate.getDate();
+    const currentMonth = currentDate.getMonth() + 1; // 0-based to 1-based
+    const currentYear = currentDate.getFullYear();
+    
+    // Clear existing options
+    monthSelect.innerHTML = '';
+    
+    const monthNames = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    
+    const options = [];
+    
+    // Start from current month or previous month based on day
+    let startMonth = currentMonth;
+    let startYear = currentYear;
+    
+    // If it's before day 5, previous month data isn't available yet
+    if (currentDay < 5) {
+        startMonth--;
+        if (startMonth < 1) {
+            startMonth = 12;
+            startYear--;
+        }
+    }
+    
+    // Generate 12 months of options going back from start month
+    for (let i = 0; i < 12; i++) {
+        let month = startMonth - i;
+        let year = startYear;
+        
+        if (month < 1) {
+            month += 12;
+            year--;
+        }
+        
+        const value = `${year}-${month.toString().padStart(2, '0')}`;
+        const label = `${monthNames[month - 1]} ${year}`;
+        
+        options.push({ value, label, year, month });
+    }
+    
+    // Add options to select (most recent first)
+    options.forEach((option, index) => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.label;
+        if (index === 0) optionElement.selected = true; // Select most recent available
+        monthSelect.appendChild(optionElement);
+    });
+}
 
 /**
  * Load data from Smogon servers

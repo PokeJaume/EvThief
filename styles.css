@@ -1,36 +1,43 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f0f23;
+    color: #e2e8f0;
     margin: 0;
     padding: 20px;
     min-height: 100vh;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
-    padding: 30px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    background: #1a1a2e;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    border: 1px solid #2d2d44;
 }
 
 h1 {
     text-align: center;
-    color: #333;
-    margin-bottom: 30px;
+    color: #ffffff;
+    margin-bottom: 40px;
     font-size: 2.5em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .upload-section {
-    background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
     text-align: center;
     color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .data-controls {
@@ -54,39 +61,52 @@ h1 {
 }
 
 .data-select {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.9);
+    padding: 12px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 500;
     cursor: pointer;
-    min-width: 150px;
+    min-width: 180px;
     text-align: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .data-select:focus {
     outline: none;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.data-select option {
+    background: #1a1a2e;
+    color: #e2e8f0;
 }
 
 .file-input-button {
     display: inline-block;
-    padding: 15px 30px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid white;
-    border-radius: 50px;
+    padding: 16px 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
 }
 
 .file-input-button:hover {
-    background: white;
-    color: #f5576c;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .results-section {
@@ -95,23 +115,26 @@ h1 {
 }
 
 .pokemon-card {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-    border-radius: 15px;
-    margin: 15px 0;
-    padding: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    background: #242445;
+    border: 1px solid #3d3d5c;
+    border-radius: 12px;
+    margin: 16px 0;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
 .pokemon-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
 }
 
 .pokemon-name {
     font-size: 1.5em;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
     text-transform: capitalize;
     display: flex;
     justify-content: space-between;
@@ -170,21 +193,34 @@ h1 {
 }
 
 .search-section {
-    background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
-    border-radius: 15px;
-    padding: 25px;
-    margin: 20px 0;
+    background: #242445;
+    border: 1px solid #3d3d5c;
+    border-radius: 12px;
+    padding: 28px;
+    margin: 24px 0;
 }
 
 .search-input {
     width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 10px;
+    padding: 16px 20px;
+    border: 2px solid #3d3d5c;
+    border-radius: 8px;
     font-size: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 15px;
+    background: #1a1a2e;
+    color: #e2e8f0;
+    margin-bottom: 16px;
     box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
 }
 
 .filter-buttons {
@@ -195,27 +231,30 @@ h1 {
 }
 
 .filter-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 25px;
-    background: #667eea;
-    color: white;
+    padding: 12px 24px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    background: transparent;
+    color: #667eea;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .filter-btn:hover, .filter-btn.active {
-    background: #764ba2;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .stats-summary {
-    background: linear-gradient(45deg, #ffecd2 0%, #fcb69f 100%);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
+    background: #242445;
+    border: 1px solid #3d3d5c;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
     text-align: center;
 }
 
@@ -227,13 +266,13 @@ h1 {
 
 .stat-number {
     font-size: 2em;
-    font-weight: bold;
+    font-weight: 700;
     color: #667eea;
     display: block;
 }
 
 .stat-label {
-    color: #666;
+    color: #94a3b8;
     font-size: 0.9em;
 }
 

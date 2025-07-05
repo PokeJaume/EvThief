@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizador de EV Spreads de Smogon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,14 +21,7 @@
                 <div class="control-group">
                     <label for="monthSelect">📅 Mes/Año:</label>
                     <select id="monthSelect" class="data-select">
-                        <option value="2025-05">Mayo 2025</option>
-                        <option value="2025-04">Abril 2025</option>
-                        <option value="2025-03">Marzo 2025</option>
-                        <option value="2025-02">Febrero 2025</option>
-                        <option value="2025-01">Enero 2025</option>
-                        <option value="2024-12">Diciembre 2024</option>
-                        <option value="2024-11">Noviembre 2024</option>
-                        <option value="2024-10">Octubre 2024</option>
+                        <!-- Options populated dynamically by JavaScript -->
                     </select>
                 </div>
                 
@@ -44,7 +40,7 @@
         </div>
         
         <div class="search-section">
-            <h3>🔎 Buscar EV Spread específico</h3>
+            <h3 style="color: #ffffff; margin-bottom: 20px;">🔎 Buscar EV Spread específico</h3>
             <input type="text" id="searchPokemon" class="search-input" placeholder="Nombre del Pokémon (ej: Urshifu, Rillaboom, etc.)">
             <input type="text" id="searchEVs" class="search-input" placeholder="EVs específicos (ej: 252/0/4/0/0/252 o HP:252,Atk:252)">
             <div class="filter-buttons">

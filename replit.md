@@ -85,11 +85,13 @@ This is a web-based tool for analyzing EV (Effort Value) spreads from Smogon's P
 
 ## Recent Changes
 
-- June 19, 2025: Modified application to fetch data directly from Smogon servers instead of file uploads
-- Added ELO level selector (1500, 1630, 1750) with descriptive labels
-- Added month/year selector for different time periods
-- Implemented async data loading with proper error handling
-- Updated UI to show loading status and connection feedback
+- July 5, 2025: Modernized UI with dark professional theme and improved typography
+- Implemented dynamic month selection based on current date with 1-year history limit
+- Added automatic availability logic (data available after day 5 of each month)
+- Updated ELO selector to include correct 1760+ level instead of 1750+
+- Removed real-time search, added manual filter button for better UX
+- Added Pokemon set count display alongside names
+- Changed from gradient backgrounds to dark theme with subtle borders and glass morphism effects
 
 ## Changelog
 
