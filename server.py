@@ -19,15 +19,22 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
         try:
             # Extract parameters from URL
             path_parts = self.path.split('/')
-            if len(path_parts) < 5:
-                self.send_error(400, "Invalid URL format")
+            if len(path_parts) < 6:
+                self.send_error(400, "Invalid URL format. Expected: /api/smogon/{month}/{format}/{elo}")
                 return
             
-            month = path_parts[3]  # e.g., "2025-05"
-            elo = path_parts[4]    # e.g., "1630"
+            month = path_parts[3]   # e.g., "2025-06"
+            format_type = path_parts[4]  # "bo1" or "bo3"
+            elo = path_parts[5]     # e.g., "1630"
             
-            # Build Smogon URL
-            smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc2025regibo3-{elo}.json"
+            # Build Smogon URL based on format
+            if format_type == "bo1":
+                smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc2025regi-{elo}.json"
+            elif format_type == "bo3":
+                smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc2025regibo3-{elo}.json"
+            else:
+                self.send_error(400, "Invalid format. Use 'bo1' or 'bo3'")
+                return
             
             print(f"Fetching data from: {smogon_url}")
             

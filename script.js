@@ -38,17 +38,13 @@ function populateMonthOptions() {
     
     const options = [];
     
-    // Start from current month or previous month based on day
-    let startMonth = currentMonth;
+    // Always start from previous month since current month data isn't available until after the 5th
+    let startMonth = currentMonth - 1;
     let startYear = currentYear;
     
-    // If it's before day 5, previous month data isn't available yet
-    if (currentDay < 5) {
-        startMonth--;
-        if (startMonth < 1) {
-            startMonth = 12;
-            startYear--;
-        }
+    if (startMonth < 1) {
+        startMonth = 12;
+        startYear--;
     }
     
     // Generate 12 months of options going back from start month
@@ -82,11 +78,13 @@ function populateMonthOptions() {
  */
 async function loadSmogonData() {
     const month = document.getElementById('monthSelect').value;
+    const format = document.getElementById('formatSelect').value;
     const elo = document.getElementById('eloSelect').value;
     
-    const url = `/api/smogon/${month}/${elo}`;
+    const url = `/api/smogon/${month}/${format}/${elo}`;
     
-    document.getElementById('loadStatus').innerHTML = `<strong>📡 Descargando datos de ${month} (ELO ${elo}+)...</strong>`;
+    const formatLabel = format === 'bo1' ? 'BO1' : 'BO3';
+    document.getElementById('loadStatus').innerHTML = `<strong>📡 Descargando datos de ${month} ${formatLabel} (ELO ${elo}+)...</strong>`;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
     document.getElementById('results').style.display = 'none';
