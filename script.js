@@ -310,8 +310,8 @@ function matchesEVSearch(spread, evSearch) {
     
     if (!evs) return false;
     
-    // Format 5: Nature filtering (nature:Adamant, nature:Jolly)
-    if (evSearch.toLowerCase().includes('nature:')) {
+    // Format 5: Nature filtering (nature:Adamant, nature:Jolly, nature!=Adamant)
+    if (evSearch.toLowerCase().includes('nature')) {
         return evaluateNatureFilter(evs, evSearch);
     }
     
@@ -358,17 +358,28 @@ function matchesEVSearch(spread, evSearch) {
 }
 
 /**
- * Evaluate nature filters like nature:Adamant, nature:Jolly
+ * Evaluate nature filters like nature:Adamant, nature:Jolly, nature!=Adamant
  */
 function evaluateNatureFilter(evs, searchString) {
     // Split by comma to handle multiple conditions including nature
     const conditions = searchString.split(',').map(s => s.trim());
     
     return conditions.every(condition => {
-        if (condition.toLowerCase().startsWith('nature:')) {
-            const targetNature = condition.split(':')[1].trim().toLowerCase();
-            const actualNature = evs.nature.toLowerCase();
-            return actualNature === targetNature;
+        if (condition.toLowerCase().includes('nature')) {
+            // Handle both nature:Adamant and nature!=Adamant formats
+            const match = condition.match(/^nature\s*(!=|=|:)\s*([a-zA-Z]+)$/i);
+            if (match) {
+                const operator = match[1];
+                const targetNature = match[2].trim().toLowerCase();
+                const actualNature = evs.nature.toLowerCase();
+                
+                if (operator === '!=' || operator === '≠') {
+                    return actualNature !== targetNature;
+                } else {
+                    return actualNature === targetNature;
+                }
+            }
+            return false;
         } else {
             // Handle other types of conditions (EV comparisons, etc.)
             if (condition.match(/[><!=]/)) {
