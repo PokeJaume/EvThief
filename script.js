@@ -303,11 +303,17 @@ function matchesEVSearch(spread, evSearch) {
     // 2. "HP:252,Atk:252" - stat:value format
     // 3. "Spe>120", "HP<200", "Atk=252" - comparison operators
     // 4. "Spe>120,HP<200" - multiple comparisons
+    // 5. "nature:Adamant" - nature filtering
     
     const spreadStr = spread.spread.toLowerCase();
     const evs = spread.evs;
     
     if (!evs) return false;
+    
+    // Format 5: Nature filtering (nature:Adamant, nature:Jolly)
+    if (evSearch.toLowerCase().includes('nature:')) {
+        return evaluateNatureFilter(evs, evSearch);
+    }
     
     // Format 1: Traditional slash-separated format
     if (evSearch.includes('/')) {
@@ -349,6 +355,43 @@ function matchesEVSearch(spread, evSearch) {
     
     // Fallback: simple string inclusion
     return spreadStr.includes(evSearch);
+}
+
+/**
+ * Evaluate nature filters like nature:Adamant, nature:Jolly
+ */
+function evaluateNatureFilter(evs, searchString) {
+    // Split by comma to handle multiple conditions including nature
+    const conditions = searchString.split(',').map(s => s.trim());
+    
+    return conditions.every(condition => {
+        if (condition.toLowerCase().startsWith('nature:')) {
+            const targetNature = condition.split(':')[1].trim().toLowerCase();
+            const actualNature = evs.nature.toLowerCase();
+            return actualNature === targetNature;
+        } else {
+            // Handle other types of conditions (EV comparisons, etc.)
+            if (condition.match(/[><!=]/)) {
+                return evaluateComparisonFilters(evs, condition);
+            } else if (condition.includes(':')) {
+                // Handle stat:value format
+                const statMappings = {
+                    'hp': evs.hp, 'health': evs.hp,
+                    'atk': evs.atk, 'attack': evs.atk, 'att': evs.atk,
+                    'def': evs.def, 'defense': evs.def,
+                    'spa': evs.spa, 'spatk': evs.spa, 'special attack': evs.spa, 'sp.atk': evs.spa,
+                    'spd': evs.spd, 'spdef': evs.spd, 'special defense': evs.spd, 'sp.def': evs.spd,
+                    'spe': evs.spe, 'speed': evs.spe
+                };
+                
+                const [stat, value] = condition.split(':').map(s => s.trim());
+                const expectedValue = parseInt(value) || 0;
+                const actualValue = statMappings[stat.toLowerCase()] || 0;
+                return actualValue === expectedValue;
+            }
+            return true;
+        }
+    });
 }
 
 /**
