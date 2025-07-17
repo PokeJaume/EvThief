@@ -371,3 +371,79 @@ h1 {
         align-self: flex-start;
     }
 }
+
+.help-panel {
+    background: #1a1a2e;
+    border: 1px solid #3d3d5c;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+.help-panel h4 {
+    color: #667eea;
+    margin: 0 0 16px 0;
+    font-size: 1.1em;
+}
+
+.help-content {
+    display: grid;
+    gap: 12px;
+}
+
+.help-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.help-item strong {
+    color: #ffffff;
+    font-size: 0.9em;
+}
+
+.help-item code {
+    background: #242445;
+    color: #667eea;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    display: inline;
+    margin-left: 8px;
+}
+
+.help-desc {
+    color: #94a3b8;
+    font-size: 0.8em;
+    margin-left: 8px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Usage percentage color coding */
+.usage-percent.high-usage { 
+    background: #e74c3c; 
+}
+
+.usage-percent.medium-usage { 
+    background: #f39c12; 
+}
+
+.usage-percent.low-usage { 
+    background: #4ecdc4; 
+}
+
+.ev-stat.nature { 
+    background: #9b59b6; 
+}

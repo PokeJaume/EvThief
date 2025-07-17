@@ -301,7 +301,8 @@ function matchesEVSearch(spread, evSearch) {
     // Support different formats:
     // 1. "252/0/4/0/0/252" - traditional format
     // 2. "HP:252,Atk:252" - stat:value format
-    // 3. "252 252" - space separated
+    // 3. "Spe>120", "HP<200", "Atk=252" - comparison operators
+    // 4. "Spe>120,HP<200" - multiple comparisons
     
     const spreadStr = spread.spread.toLowerCase();
     const evs = spread.evs;
@@ -321,7 +322,12 @@ function matchesEVSearch(spread, evSearch) {
         }
     }
     
-    // Format 2: Stat:value format
+    // Format 3: Comparison operators (Spe>120, HP<200, Atk=252)
+    if (evSearch.match(/[><!=]/)) {
+        return evaluateComparisonFilters(evs, evSearch);
+    }
+    
+    // Format 2: Stat:value format (exact matches)
     if (evSearch.includes(':')) {
         const statMappings = {
             'hp': evs.hp, 'health': evs.hp,
@@ -329,7 +335,7 @@ function matchesEVSearch(spread, evSearch) {
             'def': evs.def, 'defense': evs.def,
             'spa': evs.spa, 'spatk': evs.spa, 'special attack': evs.spa, 'sp.atk': evs.spa,
             'spd': evs.spd, 'spdef': evs.spd, 'special defense': evs.spd, 'sp.def': evs.spd,
-            'spe': evs.spe, 'speed': evs.spe, 'spd': evs.spe
+            'spe': evs.spe, 'speed': evs.spe
         };
         
         const searchPairs = evSearch.split(',');
@@ -343,6 +349,60 @@ function matchesEVSearch(spread, evSearch) {
     
     // Fallback: simple string inclusion
     return spreadStr.includes(evSearch);
+}
+
+/**
+ * Evaluate comparison filters like Spe>120, HP<200, Atk=252
+ */
+function evaluateComparisonFilters(evs, searchString) {
+    const statMappings = {
+        'hp': evs.hp, 'health': evs.hp,
+        'atk': evs.atk, 'attack': evs.atk, 'att': evs.atk,
+        'def': evs.def, 'defense': evs.def,
+        'spa': evs.spa, 'spatk': evs.spa, 'special attack': evs.spa, 'sp.atk': evs.spa, 'spatk': evs.spa,
+        'spd': evs.spd, 'spdef': evs.spd, 'special defense': evs.spd, 'sp.def': evs.spd, 'spdef': evs.spd,
+        'spe': evs.spe, 'speed': evs.spe
+    };
+    
+    // Split by comma to handle multiple conditions
+    const conditions = searchString.split(',').map(s => s.trim());
+    
+    return conditions.every(condition => {
+        // Match patterns like "Spe>120", "HP<=200", "Atk=252", "Def!=0"
+        const match = condition.match(/^([a-zA-Z]+)\s*(>=|<=|>|<|!=|=)\s*(\d+)$/);
+        
+        if (!match) {
+            console.warn(`Invalid comparison format: ${condition}`);
+            return false;
+        }
+        
+        const [, statName, operator, valueStr] = match;
+        const targetValue = parseInt(valueStr);
+        const actualValue = statMappings[statName.toLowerCase()];
+        
+        if (actualValue === undefined) {
+            console.warn(`Unknown stat: ${statName}`);
+            return false;
+        }
+        
+        switch (operator) {
+            case '>':
+                return actualValue > targetValue;
+            case '>=':
+                return actualValue >= targetValue;
+            case '<':
+                return actualValue < targetValue;
+            case '<=':
+                return actualValue <= targetValue;
+            case '=':
+                return actualValue === targetValue;
+            case '!=':
+                return actualValue !== targetValue;
+            default:
+                console.warn(`Unknown operator: ${operator}`);
+                return false;
+        }
+    });
 }
 
 /**
@@ -444,15 +504,20 @@ function toggleOnlyPopular() {
     filterResults();
 }
 
-// Add additional CSS for usage percentage color coding
-const additionalStyles = `
-    .usage-percent.high-usage { background: #e74c3c; }
-    .usage-percent.medium-usage { background: #f39c12; }
-    .usage-percent.low-usage { background: #4ecdc4; }
-    .ev-stat.nature { background: #9b59b6; }
-`;
-
-// Inject additional styles
-const styleSheet = document.createElement('style');
-styleSheet.textContent = additionalStyles;
-document.head.appendChild(styleSheet);
+/**
+ * Toggle help panel visibility
+ */
+function toggleHelpPanel() {
+    const helpPanel = document.getElementById('helpPanel');
+    const button = document.querySelector('button[onclick="toggleHelpPanel()"]');
+    
+    if (helpPanel.style.display === 'none') {
+        helpPanel.style.display = 'block';
+        button.classList.add('active');
+        button.textContent = '❌ Cerrar ayuda';
+    } else {
+        helpPanel.style.display = 'none';
+        button.classList.remove('active');
+        button.textContent = '❓ Ayuda filtros';
+    }
+}
