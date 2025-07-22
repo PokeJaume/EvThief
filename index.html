@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=2.0">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -50,7 +50,7 @@
         <div class="search-section">
             <h3 style="color: #ffffff; margin-bottom: 20px;">🔎 Buscar EV Spread específico</h3>
             <input type="text" id="searchPokemon" class="search-input" placeholder="Nombre del Pokémon (ej: Urshifu, Rillaboom, etc.)">
-            <input type="text" id="searchEVs" class="search-input" placeholder="EVs específicos (ej: 252/0/4/0/0/252, nature:Adamant, nature!=Jolly, Spe>120)">
+            <input type="text" id="searchEVs" class="search-input" placeholder="EVs específicos (ej: 252/0/4/0/0/252, HP:252,Atk:252, o Spe>120)">
             <div class="filter-buttons">
                 <button class="filter-btn" id="applyFilterBtn">🔍 Aplicar filtros</button>
                 <button class="filter-btn" onclick="sortBy('usage')">🔥 Ordenar por uso</button>
@@ -75,11 +75,7 @@
                         <span class="help-desc">Filtros con operadores</span>
                     </div>
                     <div class="help-item">
-                        <strong>Filtrar por naturaleza:</strong> <code>nature:Adamant</code>, <code>nature!=Jolly</code>
-                        <span class="help-desc">Buscar por naturaleza específica o excluir naturalezas</span>
-                    </div>
-                    <div class="help-item">
-                        <strong>Múltiples condiciones:</strong> <code>Spe>120,HP<200,nature:Adamant</code>
+                        <strong>Múltiples condiciones:</strong> <code>Spe>120,HP<200,Atk!=0</code>
                         <span class="help-desc">Combina varios filtros</span>
                     </div>
                     <div class="help-item">
@@ -111,6 +107,6 @@
         <div id="results" class="results-section"></div>
     </div>
 
-    <script src="script.js?v=2.0"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import http.server
 import socketserver
-import socket
 import urllib.request
 import urllib.parse
 import json
@@ -76,40 +75,9 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 if __name__ == "__main__":
-    import sys
-    import os
-    import signal
-    
     PORT = 5000
     
-    # Force kill any existing processes on port 5000
-    try:
-        os.system(f"pkill -f 'server.py' 2>/dev/null || true")
-        os.system(f"fuser -k {PORT}/tcp 2>/dev/null || true")
-    except:
-        pass
-    
-    # Try to use SO_REUSEADDR to avoid "Address already in use" errors
-    class ReusableTCPServer(socketserver.TCPServer):
-        allow_reuse_address = True
-        def server_bind(self):
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            super().server_bind()
-    
-    try:
-        with ReusableTCPServer(("0.0.0.0", PORT), SmogonProxyHandler) as httpd:
-            print(f"Server running on port {PORT}")
-            print(f"Access the app at: http://localhost:{PORT}")
-            httpd.serve_forever()
-    except OSError as e:
-        if "Address already in use" in str(e):
-            print(f"Port {PORT} is already in use. Trying to force restart...")
-            os.system(f"pkill -9 -f python 2>/dev/null || true")
-            import time
-            time.sleep(2)
-            with ReusableTCPServer(("0.0.0.0", PORT), SmogonProxyHandler) as httpd:
-                print(f"Server running on port {PORT}")
-                print(f"Access the app at: http://localhost:{PORT}")
-                httpd.serve_forever()
-        else:
-            raise
+    with socketserver.TCPServer(("0.0.0.0", PORT), SmogonProxyHandler) as httpd:
+        print(f"Server running on port {PORT}")
+        print(f"Access the app at: http://localhost:{PORT}")
+        httpd.serve_forever()
