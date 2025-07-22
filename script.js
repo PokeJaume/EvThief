@@ -3,6 +3,29 @@ let filteredData = {};
 let showOnlyPopular = false;
 let currentSort = 'usage';
 
+/**
+ * Generate Smogon sprite URL for a Pokemon name
+ * Converts complex names to simple ones ONLY for image URLs
+ */
+function generateSpriteUrl(pokemonName) {
+    // Convert to lowercase and handle special cases for SPRITES ONLY
+    let spriteName = pokemonName.toLowerCase();
+    
+    // Special cases for sprites (this doesn't affect data processing)
+    if (spriteName.includes('urshifu')) {
+        spriteName = 'urshifu'; // Both forms use same sprite
+    }
+    
+    // Convert spaces and special characters to hyphens for sprite URLs
+    spriteName = spriteName
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]/g, '-')
+        .replace(/--+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    
+    return `https://www.smogon.com/forums/media/minisprites/${spriteName}.png`;
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     populateMonthOptions();
@@ -460,7 +483,7 @@ function evaluateComparisonFilters(evs, searchString) {
 }
 
 /**
- * Display filtered results
+ * Display filtered results with modern design and sprites
  */
 function displayResults() {
     const resultsDiv = document.getElementById('results');
@@ -486,33 +509,69 @@ function displayResults() {
     let html = '';
     
     for (const [pokemonName, spreads] of sortedPokemon) {
-        html += `<div class="pokemon-card">`;
-        html += `<div class="pokemon-name">${pokemonName} <span class="set-count">(${spreads.length} sets)</span></div>`;
+        const spriteUrl = generateSpriteUrl(pokemonName);
+        
+        html += `<div class="pokemon-card-modern">`;
+        
+        // Pokemon header with sprite
+        html += `<div class="pokemon-header">`;
+        html += `<div class="pokemon-info">`;
+        html += `<img src="${spriteUrl}" alt="${pokemonName}" class="pokemon-sprite" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTUiIGZpbGw9IiM2NjdlZWEiIHN0cm9rZT0iIzNkM2Q1YyIvPgo8dGV4dCB4PSIxNiIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+Pz88L3RleHQ+Cjwvc3ZnPgo='">`;
+        html += `<div class="pokemon-details">`;
+        html += `<div class="pokemon-name-modern">${pokemonName}</div>`;
+        html += `<div class="set-count-modern">${spreads.length} sets encontrados</div>`;
+        html += `</div>`;
+        html += `</div>`;
+        html += `<div class="pokemon-top-usage">Top: ${spreads[0]?.formattedPercentage || '0%'}</div>`;
+        html += `</div>`;
+        
+        // Spreads table
+        html += `<div class="spreads-table">`;
         
         for (const spread of spreads) {
             const evs = spread.evs;
             if (!evs) continue;
             
-            // Color code usage percentage
-            let usageClass = 'usage-percent';
-            if (spread.percentage > 20) usageClass += ' high-usage';
-            else if (spread.percentage > 10) usageClass += ' medium-usage';
-            else usageClass += ' low-usage';
+            // Generate EV bars with visual representation
+            const evStats = [
+                {name: 'HP', value: evs.hp, color: '#e74c3c'},
+                {name: 'Atk', value: evs.atk, color: '#f39c12'},
+                {name: 'Def', value: evs.def, color: '#f1c40f'},
+                {name: 'SpA', value: evs.spa, color: '#3498db'},
+                {name: 'SpD', value: evs.spd, color: '#9b59b6'},
+                {name: 'Spe', value: evs.spe, color: '#2ecc71'}
+            ];
             
-            html += `<div class="ev-spread">`;
-            html += `<div class="ev-values">`;
-            html += `<span class="ev-stat">HP: ${evs.hp}</span>`;
-            html += `<span class="ev-stat">Atk: ${evs.atk}</span>`;
-            html += `<span class="ev-stat">Def: ${evs.def}</span>`;
-            html += `<span class="ev-stat">SpA: ${evs.spa}</span>`;
-            html += `<span class="ev-stat">SpD: ${evs.spd}</span>`;
-            html += `<span class="ev-stat">Spe: ${evs.spe}</span>`;
-            html += `<span class="ev-stat nature">${evs.nature}</span>`;
+            html += `<div class="ev-spread-modern">`;
+            html += `<div class="ev-stats-grid">`;
+            
+            evStats.forEach(stat => {
+                const percentage = (stat.value / 252) * 100;
+                html += `<div class="ev-stat-modern">`;
+                html += `<div class="ev-stat-label">${stat.name}</div>`;
+                html += `<div class="ev-stat-bar">`;
+                html += `<div class="ev-stat-fill" style="width: ${percentage}%; background: ${stat.color}"></div>`;
+                html += `</div>`;
+                html += `<div class="ev-stat-value">${stat.value}</div>`;
+                html += `</div>`;
+            });
+            
             html += `</div>`;
+            html += `<div class="spread-meta">`;
+            html += `<div class="nature-badge">${evs.nature}</div>`;
+            
+            // Usage percentage with color coding
+            let usageClass = 'usage-badge';
+            if (spread.percentage > 20) usageClass += ' usage-high';
+            else if (spread.percentage > 10) usageClass += ' usage-medium';
+            else usageClass += ' usage-low';
+            
             html += `<div class="${usageClass}">${spread.formattedPercentage}</div>`;
+            html += `</div>`;
             html += `</div>`;
         }
         
+        html += `</div>`;
         html += `</div>`;
     }
     
