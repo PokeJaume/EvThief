@@ -74,23 +74,56 @@ function populateMonthOptions() {
 }
 
 /**
- * Load data from Smogon servers
+ * Check if cached data is available
+ */
+async function checkCachedData() {
+    try {
+        const response = await fetch('/api/available-months');
+        if (response.ok) {
+            const data = await response.json();
+            return data.available_months || [];
+        }
+    } catch (error) {
+        console.log('No cached data available, will use proxy');
+    }
+    return [];
+}
+
+/**
+ * Load data from cache or Smogon API
  */
 async function loadSmogonData() {
     const month = document.getElementById('monthSelect').value;
     const format = document.getElementById('formatSelect').value;
     const elo = document.getElementById('eloSelect').value;
     
-    const url = `/api/smogon/${month}/${format}/${elo}`;
+    // Check for cached data first
+    const cachedMonths = await checkCachedData();
+    const hasCachedData = cachedMonths.some(cm => cm.month === month);
+    
+    const dataSource = hasCachedData ? 'caché local' : 'Smogon API';
+    const speedNote = hasCachedData ? '⚡ Acceso instantáneo' : '📡 Descargando datos';
     
     const formatLabel = format === 'bo1' ? 'BO1' : 'BO3';
-    document.getElementById('loadStatus').innerHTML = `<strong>📡 Descargando datos de ${month} ${formatLabel} (ELO ${elo}+)...</strong>`;
+    document.getElementById('loadStatus').innerHTML = `<strong>${speedNote} de ${month} ${formatLabel} (ELO ${elo}+) desde ${dataSource}...</strong>`;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('statsummary').style.display = 'none';
     
     try {
+        let url;
+        
+        if (hasCachedData) {
+            // Use cached data API
+            url = `/api/cached/${month}/gen9ou/${format}/${elo}`;
+            console.log('Using cached data from:', url);
+        } else {
+            // Use proxy API
+            url = `/api/smogon/${month}/${format}/${elo}`;
+            console.log('Using proxy API:', url);
+        }
+        
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -98,12 +131,37 @@ async function loadSmogonData() {
         }
         
         const data = await response.json();
-        document.getElementById('loadStatus').innerHTML = `<strong>✅ Datos cargados exitosamente</strong>`;
+        const successIcon = hasCachedData ? '⚡' : '✅';
+        document.getElementById('loadStatus').innerHTML = `<strong>${successIcon} Datos cargados exitosamente desde ${dataSource}</strong>`;
         processSmogonData(data);
         
+        // Show success message for cached data
+        if (hasCachedData) {
+            console.log('⚡ Datos cargados instantáneamente desde caché local');
+        }
+        
     } catch (error) {
-        console.error('Error loading Smogon data:', error);
-        let errorMessage = 'Error al cargar los datos de Smogon. ';
+        console.error('Error loading data:', error);
+        
+        // Try fallback to proxy if cached data failed
+        if (hasCachedData) {
+            console.log('Cached data failed, trying proxy...');
+            try {
+                const fallbackUrl = `/api/smogon/${month}/${format}/${elo}`;
+                const fallbackResponse = await fetch(fallbackUrl);
+                
+                if (fallbackResponse.ok) {
+                    const fallbackData = await fallbackResponse.json();
+                    document.getElementById('loadStatus').innerHTML = `<strong>✅ Datos cargados desde Smogon API (fallback)</strong>`;
+                    processSmogonData(fallbackData);
+                    return;
+                }
+            } catch (fallbackError) {
+                console.error('Fallback also failed:', fallbackError);
+            }
+        }
+        
+        let errorMessage = `Error al cargar los datos desde ${dataSource}. `;
         
         if (error.message.includes('HTTP: 404')) {
             errorMessage += 'Los datos para este mes/ELO no están disponibles.';

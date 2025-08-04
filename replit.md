@@ -85,6 +85,19 @@ This is a web-based tool for analyzing EV (Effort Value) spreads from Smogon's P
 
 ## Recent Changes
 
+- August 4, 2025: **Advanced filtering system with comparison operators**
+  - Implemented support for EV stat comparisons (Spe>120, HP<200, Atk=252, etc.)
+  - Added support for multiple conditions (Spe>120,HP<200,Atk!=0)
+  - All comparison operators supported: >, <, =, >=, <=, !=
+  - Interactive help panel with filtering syntax guide
+  
+- August 4, 2025: **Data preloading and caching system**
+  - Created comprehensive data preloader (`data_preloader.py`) for instant access
+  - Integrated cached data API endpoints in server (`/api/cached/`, `/api/available-months`)
+  - Frontend automatically uses cached data when available, falls back to proxy
+  - Compressed data storage using gzip for efficient space usage
+  - User-friendly precarga script (`preload_data.py`) for easy setup
+
 - July 5, 2025: Modernized UI with dark professional theme and improved typography
 - Implemented dynamic month selection based on current date with 1-year history limit
 - Added automatic availability logic (data available after day 5 of each month)
