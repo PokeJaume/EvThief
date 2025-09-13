@@ -74,14 +74,6 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             # Serve static files normally
             super().do_GET()
     
-    def end_headers(self):
-        # Add no-cache headers for JavaScript files to prevent caching issues
-        if self.path.endswith('.js'):
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            self.send_header('Pragma', 'no-cache')
-            self.send_header('Expires', '0')
-        super().end_headers()
-    
     def handle_cached_data(self):
         """Maneja solicitudes de datos precargados"""
         try:
