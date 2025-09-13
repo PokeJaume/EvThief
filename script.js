@@ -520,7 +520,29 @@ function evaluateComparisonFilters(evs, searchString) {
 }
 
 /**
- * Display filtered results
+ * Generate sprite URL for a Pokémon name
+ */
+function generateSpriteUrl(pokemonName) {
+    // Convert Pokémon name to lowercase and handle special cases
+    let spriteName = pokemonName.toLowerCase();
+    
+    // Handle special sprite cases (solo para las imágenes, no para usos)
+    if (spriteName.includes('urshifu')) {
+        spriteName = 'urshifu'; // Urshifu siempre usa el mismo sprite
+    }
+    
+    // Replace spaces and special characters with hyphens for sprite URLs
+    spriteName = spriteName
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9\-]/g, '')
+        .replace(/--+/g, '-')
+        .replace(/^-|-$/g, '');
+    
+    return `https://www.smogon.com/forums/media/minisprites/${spriteName}.png`;
+}
+
+/**
+ * Display filtered results with modern card design and sprites
  */
 function displayResults() {
     const resultsDiv = document.getElementById('results');
@@ -546,33 +568,71 @@ function displayResults() {
     let html = '';
     
     for (const [pokemonName, spreads] of sortedPokemon) {
-        html += `<div class="pokemon-card">`;
-        html += `<div class="pokemon-name">${pokemonName} <span class="set-count">(${spreads.length} sets)</span></div>`;
+        const spriteUrl = generateSpriteUrl(pokemonName);
         
-        for (const spread of spreads) {
+        html += `<div class="pokemon-card-modern">`;
+        
+        // Pokemon header with sprite
+        html += `<div class="pokemon-header">`;
+        html += `<div class="pokemon-info">`;
+        html += `<img src="${spriteUrl}" alt="${pokemonName}" class="pokemon-sprite" onerror="this.style.display='none'">`;
+        html += `<div class="pokemon-details">`;
+        html += `<h3 class="pokemon-name-modern">${pokemonName}</h3>`;
+        html += `<span class="set-count-modern">${spreads.length} spreads disponibles</span>`;
+        html += `</div>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        // Spreads container
+        html += `<div class="spreads-container">`;
+        
+        for (const [index, spread] of spreads.entries()) {
             const evs = spread.evs;
             if (!evs) continue;
             
             // Color code usage percentage
-            let usageClass = 'usage-percent';
+            let usageClass = 'usage-badge';
             if (spread.percentage > 20) usageClass += ' high-usage';
             else if (spread.percentage > 10) usageClass += ' medium-usage';
             else usageClass += ' low-usage';
             
-            html += `<div class="ev-spread">`;
-            html += `<div class="ev-values">`;
-            html += `<span class="ev-stat">HP: ${evs.hp}</span>`;
-            html += `<span class="ev-stat">Atk: ${evs.atk}</span>`;
-            html += `<span class="ev-stat">Def: ${evs.def}</span>`;
-            html += `<span class="ev-stat">SpA: ${evs.spa}</span>`;
-            html += `<span class="ev-stat">SpD: ${evs.spd}</span>`;
-            html += `<span class="ev-stat">Spe: ${evs.spe}</span>`;
-            html += `<span class="ev-stat nature">${evs.nature}</span>`;
+            html += `<div class="spread-row ${index === 0 ? 'most-popular' : ''}">`;
+            
+            // EV bars visualization
+            html += `<div class="ev-bars">`;
+            const statNames = ['HP', 'Atk', 'Def', 'SpA', 'SpD', 'Spe'];
+            const statValues = [evs.hp, evs.atk, evs.def, evs.spa, evs.spd, evs.spe];
+            
+            for (let i = 0; i < statNames.length; i++) {
+                const percentage = (statValues[i] / 252) * 100;
+                let barColor = 'ev-bar-default';
+                if (statValues[i] === 252) barColor = 'ev-bar-max';
+                else if (statValues[i] >= 100) barColor = 'ev-bar-high';
+                else if (statValues[i] > 0) barColor = 'ev-bar-medium';
+                
+                html += `<div class="ev-stat-container">`;
+                html += `<span class="ev-stat-label">${statNames[i]}</span>`;
+                html += `<div class="ev-bar ${barColor}">`;
+                html += `<div class="ev-bar-fill" style="width: ${percentage}%"></div>`;
+                html += `<span class="ev-value">${statValues[i]}</span>`;
+                html += `</div>`;
+                html += `</div>`;
+            }
             html += `</div>`;
-            html += `<div class="${usageClass}">${spread.formattedPercentage}</div>`;
+            
+            // Nature and usage
+            html += `<div class="spread-meta">`;
+            html += `<span class="nature-badge">${evs.nature}</span>`;
+            html += `<div class="${usageClass}">`;
+            html += `<span class="usage-percent">${spread.formattedPercentage}</span>`;
+            if (index === 0) html += `<span class="popular-tag">MÁS POPULAR</span>`;
+            html += `</div>`;
+            html += `</div>`;
+            
             html += `</div>`;
         }
         
+        html += `</div>`;
         html += `</div>`;
     }
     
