@@ -95,6 +95,7 @@ async function checkCachedData() {
 async function loadSmogonData() {
     const month = document.getElementById('monthSelect').value;
     const format = document.getElementById('formatSelect').value;
+    const regulation = document.getElementById('regulationSelect').value;
     const elo = document.getElementById('eloSelect').value;
     
     // Check for cached data first
@@ -105,7 +106,8 @@ async function loadSmogonData() {
     const speedNote = hasCachedData ? '⚡ Acceso instantáneo' : '📡 Descargando datos';
     
     const formatLabel = format === 'bo1' ? 'BO1' : 'BO3';
-    document.getElementById('loadStatus').innerHTML = `<strong>${speedNote} de ${month} ${formatLabel} (ELO ${elo}+) desde ${dataSource}...</strong>`;
+    const regulationLabel = regulation.toUpperCase();
+    document.getElementById('loadStatus').innerHTML = `<strong>${speedNote} de ${month} ${formatLabel} ${regulationLabel} (ELO ${elo}+) desde ${dataSource}...</strong>`;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
     document.getElementById('results').style.display = 'none';
@@ -116,11 +118,11 @@ async function loadSmogonData() {
         
         if (hasCachedData) {
             // Use cached data API
-            url = `/api/cached/${month}/gen9ou/${format}/${elo}`;
+            url = `/api/cached/${month}/gen9ou/${format}/${regulation}/${elo}`;
             console.log('Using cached data from:', url);
         } else {
             // Use proxy API
-            url = `/api/smogon/${month}/${format}/${elo}`;
+            url = `/api/smogon/${month}/${format}/${regulation}/${elo}`;
             console.log('Using proxy API:', url);
         }
         
@@ -147,7 +149,7 @@ async function loadSmogonData() {
         if (hasCachedData) {
             console.log('Cached data failed, trying proxy...');
             try {
-                const fallbackUrl = `/api/smogon/${month}/${format}/${elo}`;
+                const fallbackUrl = `/api/smogon/${month}/${format}/${regulation}/${elo}`;
                 const fallbackResponse = await fetch(fallbackUrl);
                 
                 if (fallbackResponse.ok) {

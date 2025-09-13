@@ -6,14 +6,62 @@ import urllib.parse
 import json
 import os
 import gzip
+import re
 from datetime import datetime, timedelta
 from urllib.error import HTTPError, URLError
 
 class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
+    # Security allowlists and validation patterns
+    VALID_REGULATIONS = {'regf', 'regg', 'regh', 'regi', 'regj', 'regk', 'regl', 'regm', 'regn', 'rego', 'regp', 'regq'}
+    VALID_FORMATS = {'bo1', 'bo3'}
+    MONTH_PATTERN = re.compile(r'^\d{4}-\d{2}$')
+    ELO_PATTERN = re.compile(r'^\d+$')
+    
     def __init__(self, *args, **kwargs):
         self.data_dir = "./data"
         super().__init__(*args, **kwargs)
     
+    def validate_input_parameters(self, month, format_type, regulation, elo):
+        """Validates all input parameters for security and correctness"""
+        errors = []
+        
+        # Validate month format (YYYY-MM) and sanitize for path safety
+        if not self.MONTH_PATTERN.match(month):
+            errors.append("Month must be in YYYY-MM format")
+        else:
+            # Additional path traversal protection
+            if '../' in month or '\\' in month or month.startswith('/'):
+                errors.append("Invalid characters in month parameter")
+        
+        # Validate format type
+        if format_type not in self.VALID_FORMATS:
+            errors.append(f"Format must be one of: {', '.join(self.VALID_FORMATS)}")
+        
+        # Validate regulation
+        if regulation not in self.VALID_REGULATIONS:
+            errors.append(f"Regulation must be one of: {', '.join(self.VALID_REGULATIONS)}")
+        
+        # Validate elo
+        if not self.ELO_PATTERN.match(elo):
+            errors.append("Elo must be numeric")
+        elif not (1000 <= int(elo) <= 2000):
+            errors.append("Elo must be between 1000 and 2000")
+        
+        return errors
+    
+    def extract_year_from_month(self, month):
+        """Safely extract year from validated month string"""
+        return month.split('-')[0]
+    
+    def sanitize_filename(self, filename):
+        """Sanitize filename to prevent path traversal attacks"""
+        # Remove any path components and only keep the base filename
+        sanitized = os.path.basename(filename)
+        # Additional check for valid characters
+        if not re.match(r'^[a-zA-Z0-9\-_.]+$', sanitized):
+            raise ValueError(f"Invalid filename: {filename}")
+        return sanitized
+
     def do_GET(self):
         # Handle different API endpoints
         if self.path.startswith('/api/cached/'):
@@ -29,23 +77,31 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
     def handle_cached_data(self):
         """Maneja solicitudes de datos precargados"""
         try:
-            # Parse URL: /api/cached/2024-06/gen9ou/bo1/1760
+            # Parse URL: /api/cached/2024-06/gen9ou/bo1/regi/1760
             path_parts = self.path.split('/')
-            if len(path_parts) < 7:
+            if len(path_parts) < 8:
                 self.send_error_response(400, "Invalid cached data URL format")
                 return
             
             year_month = path_parts[3]
             format_name = path_parts[4]
             battle_type = path_parts[5]
-            elo = path_parts[6]
+            regulation = path_parts[6]
+            elo = path_parts[7]
             
-            # Cargar datos del archivo
-            cached_data = self.load_cached_data(year_month, format_name, battle_type, elo)
+            # Validate all input parameters for security
+            validation_errors = self.validate_input_parameters(year_month, battle_type, regulation, elo)
+            if validation_errors:
+                error_msg = f"Invalid parameters: {'; '.join(validation_errors)}"
+                self.send_error_response(400, error_msg)
+                return
+            
+            # Cargar datos del archivo con parámetros validados
+            cached_data = self.load_cached_data(year_month, format_name, battle_type, regulation, elo)
             
             if cached_data:
                 self.send_json_response(cached_data)
-                print(f"✅ Served cached data: {year_month}/{format_name}/{battle_type}/{elo}")
+                print(f"✅ Served cached data: {year_month}/{format_name}/{battle_type}/{regulation}/{elo}")
             else:
                 self.send_error_response(404, f"No cached data found for {year_month}")
                 
@@ -82,9 +138,15 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Error getting available months: {e}")
             self.send_error_response(500, f"Error: {str(e)}")
     
-    def load_cached_data(self, year_month, format_name="gen9ou", battle_type="bo1", elo="1760"):
-        """Carga datos desde caché local"""
-        file_path = os.path.join(self.data_dir, f"{year_month}.json.gz")
+    def load_cached_data(self, year_month, format_name="gen9ou", battle_type="bo1", regulation="regi", elo="1760"):
+        """Carga datos desde caché local con compatibilidad hacia atrás"""
+        # Sanitize the filename to prevent path traversal attacks
+        try:
+            sanitized_filename = self.sanitize_filename(f"{year_month}.json.gz")
+            file_path = os.path.join(self.data_dir, sanitized_filename)
+        except ValueError as e:
+            print(f"Invalid filename detected: {e}")
+            return None
         
         if not os.path.exists(file_path):
             return None
@@ -93,8 +155,18 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             with gzip.open(file_path, 'rt', encoding='utf-8') as f:
                 month_data = json.load(f)
             
-            key = f"{format_name}_{battle_type}_{elo}"
-            return month_data.get(key)
+            # Try new cache key format first
+            key = f"{format_name}_{battle_type}_{regulation}_{elo}"
+            cached_data = month_data.get(key)
+            
+            # Fallback to legacy cache key format for backward compatibility
+            if cached_data is None:
+                legacy_key = f"{format_name}_{battle_type}_{elo}"
+                cached_data = month_data.get(legacy_key)
+                if cached_data:
+                    print(f"Using legacy cache key: {legacy_key}")
+            
+            return cached_data
             
         except Exception as e:
             print(f"Error loading cached data from {file_path}: {e}")
@@ -105,20 +177,32 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
         try:
             # Extract parameters from URL
             path_parts = self.path.split('/')
-            if len(path_parts) < 6:
-                self.send_error(400, "Invalid URL format. Expected: /api/smogon/{month}/{format}/{elo}")
+            if len(path_parts) < 7:
+                self.send_error(400, "Invalid URL format. Expected: /api/smogon/{month}/{format}/{regulation}/{elo}")
                 return
             
-            month = path_parts[3]   # e.g., "2025-06"
+            month = path_parts[3]   # e.g., "2024-06"
             format_type = path_parts[4]  # "bo1" or "bo3"
-            elo = path_parts[5]     # e.g., "1630"
+            regulation = path_parts[5]  # e.g., "regi", "regj", etc.
+            elo = path_parts[6]     # e.g., "1630"
             
-            # Build Smogon URL based on format
+            # Validate all input parameters for security
+            validation_errors = self.validate_input_parameters(month, format_type, regulation, elo)
+            if validation_errors:
+                error_msg = f"Invalid parameters: {'; '.join(validation_errors)}"
+                self.send_error(400, error_msg)
+                return
+            
+            # Extract year from month to fix hardcoded "2025" issue
+            year = self.extract_year_from_month(month)
+            
+            # Build Smogon URL with correct year derived from month
             if format_type == "bo1":
-                smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc2025regi-{elo}.json"
+                smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc{year}{regulation}-{elo}.json"
             elif format_type == "bo3":
-                smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc2025regibo3-{elo}.json"
+                smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc{year}{regulation}bo3-{elo}.json"
             else:
+                # This should never happen due to validation, but included for safety
                 self.send_error(400, "Invalid format. Use 'bo1' or 'bo3'")
                 return
             
