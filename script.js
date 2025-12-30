@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 /**
+ * Format regulation display (regf -> Reg F, regh -> Reg H, etc.)
+ */
+function formatRegulation(reg) {
+    const lowerReg = reg.toLowerCase();
+    const letter = lowerReg.replace('reg', '').toUpperCase();
+    return `Reg ${letter}`;
+}
+
+/**
  * Fetch available regulations and ELO levels from server
  */
 async function populateRegulationsAndElos() {
@@ -37,7 +46,7 @@ async function populateRegulationsAndElos() {
         regulations.forEach((reg, index) => {
             const option = document.createElement('option');
             option.value = reg;
-            option.textContent = reg.toUpperCase();
+            option.textContent = formatRegulation(reg);
             if (index === 0) option.selected = true;
             regSelect.appendChild(option);
         });
@@ -56,14 +65,14 @@ async function populateRegulationsAndElos() {
         console.log('Regulations and ELOs loaded:', regulations, elos);
     } catch (error) {
         console.error('Error loading regulations:', error);
-        // Fallback to defaults
+        // Fallback to defaults - now includes regf
         const regSelect = document.getElementById('regulationSelect');
         const eloSelect = document.getElementById('eloSelect');
         
-        ['regh', 'regi', 'regj'].forEach((reg, index) => {
+        ['regf', 'regh', 'regi', 'regj'].forEach((reg, index) => {
             const option = document.createElement('option');
             option.value = reg;
-            option.textContent = reg.toUpperCase();
+            option.textContent = formatRegulation(reg);
             if (index === 0) option.selected = true;
             regSelect.appendChild(option);
         });
@@ -166,7 +175,7 @@ async function loadSmogonData() {
     const speedNote = hasCachedData ? '⚡ Acceso instantáneo' : '📡 Descargando datos';
     
     const formatLabel = format === 'bo1' ? 'BO1' : 'BO3';
-    const regulationLabel = regulation.toUpperCase();
+    const regulationLabel = formatRegulation(regulation);
     document.getElementById('loadStatus').innerHTML = `<strong>${speedNote} de ${month} ${formatLabel} ${regulationLabel} (ELO ${elo}+) desde ${dataSource}...</strong>`;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
