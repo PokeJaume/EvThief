@@ -53,6 +53,29 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
         """Safely extract year from validated month string"""
         return month.split('-')[0]
     
+    def get_correct_year_for_regulation(self, month, regulation):
+        """
+        Get the correct year for a regulation.
+        Automatically detects current season and adjusts year if needed.
+        For example: if requesting regf data from 2025-11, 
+        it returns 2026 since we're now in the 2026 VGC season.
+        """
+        year = int(self.extract_year_from_month(month))
+        current_year = datetime.now().year
+        
+        # Map regulations to their respective years
+        # regf, regg are 2025 regulations (but we're now in 2026)
+        # regh, regi, regj, regk, etc. are 2026+ regulations
+        regulations_2025 = {'regf', 'regg'}
+        
+        # If requesting old regulation data from past year,
+        # but current year is different, use current year
+        if regulation in regulations_2025 and year < current_year:
+            year = current_year
+            print(f"Auto-adjusting year for {regulation}: using {year}")
+        
+        return str(year)
+    
     def sanitize_filename(self, filename):
         """Sanitize filename to prevent path traversal attacks"""
         # Remove any path components and only keep the base filename
@@ -193,8 +216,8 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(400, error_msg)
                 return
             
-            # Extract year from month to fix hardcoded "2025" issue
-            year = self.extract_year_from_month(month)
+            # Extract year and auto-correct for current season
+            year = self.get_correct_year_for_regulation(month, regulation)
             
             # Build Smogon URL with correct year derived from month
             if format_type == "bo1":

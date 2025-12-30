@@ -31,9 +31,5 @@ run = ["sh", "-c", "python -m http.server 5000"]
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 45485
-externalPort = 3000
-
 [agent]
 expertMode = true
