@@ -295,6 +295,9 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     PORT = 5000
     
+    # Allow reusing the socket address to avoid "Address already in use" errors
+    socketserver.TCPServer.allow_reuse_address = True
+    
     with socketserver.TCPServer(("0.0.0.0", PORT), SmogonProxyHandler) as httpd:
         print(f"Server running on port {PORT}")
         print(f"Access the app at: http://localhost:{PORT}")
