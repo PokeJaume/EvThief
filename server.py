@@ -91,6 +91,8 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_cached_data()
         elif self.path == '/api/available-months':
             self.handle_available_months()
+        elif self.path == '/api/available-regulations':
+            self.handle_available_regulations()
         elif self.path.startswith('/api/smogon/'):
             self.handle_smogon_proxy()
         else:
@@ -160,6 +162,57 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"Error getting available months: {e}")
             self.send_error_response(500, f"Error: {str(e)}")
+    
+    def handle_available_regulations(self):
+        """Scrape Smogon to get available VGC regulations and ELO levels"""
+        try:
+            # Get current month
+            today = datetime.now()
+            month = f"{today.year}-{today.month:02d}"
+            
+            # Fetch the Smogon stats directory listing
+            smogon_url = f"https://www.smogon.com/stats/{month}/"
+            req = urllib.request.Request(smogon_url)
+            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                html = response.read().decode('utf-8')
+            
+            # Parse available regulations and ELO levels from filenames
+            regulations = set()
+            elo_levels = set()
+            
+            # Match patterns like: gen9vgc2026regfbo3-1630.txt.gz
+            import re
+            pattern = r'gen9vgc\d{4}(reg[a-z])(bo3)?-(\d+)\.txt'
+            
+            for match in re.finditer(pattern, html):
+                regulation = match.group(1)
+                elo = match.group(3)
+                regulations.add(regulation)
+                elo_levels.add(elo)
+            
+            # Sort results
+            sorted_regs = sorted(list(regulations))
+            sorted_elos = sorted(list(elo_levels), key=int)
+            
+            response_data = {
+                "regulations": sorted_regs,
+                "elo_levels": sorted_elos,
+                "month": month
+            }
+            
+            self.send_json_response(response_data)
+            print(f"Found regulations: {sorted_regs}, ELO levels: {sorted_elos}")
+            
+        except Exception as e:
+            print(f"Error scraping regulations: {e}")
+            # Return default values if scraping fails
+            self.send_json_response({
+                "regulations": ["regh", "regi", "regj"],
+                "elo_levels": ["0", "1500", "1630", "1760"],
+                "error": str(e)
+            })
     
     def load_cached_data(self, year_month, format_name="gen9ou", battle_type="bo1", regulation="regi", elo="1760"):
         """Carga datos desde caché local con compatibilidad hacia atrás"""

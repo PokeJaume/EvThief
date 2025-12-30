@@ -4,8 +4,9 @@ let showOnlyPopular = false;
 let currentSort = 'usage';
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     populateMonthOptions();
+    await populateRegulationsAndElos(); // Load available regulations first
     document.getElementById('loadDataBtn').addEventListener('click', loadSmogonData);
     document.getElementById('applyFilterBtn').addEventListener('click', filterResults);
     
@@ -17,6 +18,65 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') filterResults();
     });
 });
+
+/**
+ * Fetch available regulations and ELO levels from server
+ */
+async function populateRegulationsAndElos() {
+    try {
+        const response = await fetch('/api/available-regulations');
+        if (!response.ok) throw new Error('Failed to fetch regulations');
+        
+        const data = await response.json();
+        const regulations = data.regulations || [];
+        const elos = data.elo_levels || ['0', '1500', '1630', '1760'];
+        
+        // Populate regulations select
+        const regSelect = document.getElementById('regulationSelect');
+        regSelect.innerHTML = '';
+        regulations.forEach((reg, index) => {
+            const option = document.createElement('option');
+            option.value = reg;
+            option.textContent = reg.toUpperCase();
+            if (index === 0) option.selected = true;
+            regSelect.appendChild(option);
+        });
+        
+        // Populate ELO select
+        const eloSelect = document.getElementById('eloSelect');
+        eloSelect.innerHTML = '';
+        elos.forEach((elo, index) => {
+            const option = document.createElement('option');
+            option.value = elo;
+            option.textContent = elo;
+            if (index === 1) option.selected = true; // Select second option (usually 1500)
+            eloSelect.appendChild(option);
+        });
+        
+        console.log('Regulations and ELOs loaded:', regulations, elos);
+    } catch (error) {
+        console.error('Error loading regulations:', error);
+        // Fallback to defaults
+        const regSelect = document.getElementById('regulationSelect');
+        const eloSelect = document.getElementById('eloSelect');
+        
+        ['regh', 'regi', 'regj'].forEach((reg, index) => {
+            const option = document.createElement('option');
+            option.value = reg;
+            option.textContent = reg.toUpperCase();
+            if (index === 0) option.selected = true;
+            regSelect.appendChild(option);
+        });
+        
+        ['0', '1500', '1630', '1760'].forEach((elo, index) => {
+            const option = document.createElement('option');
+            option.value = elo;
+            option.textContent = elo;
+            if (index === 1) option.selected = true;
+            eloSelect.appendChild(option);
+        });
+    }
+}
 
 /**
  * Populate month options based on current date and availability rules
