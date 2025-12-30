@@ -166,38 +166,17 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
     def handle_available_regulations(self):
         """Scrape Smogon to get available VGC regulations and ELO levels"""
         try:
-            # Get most recent month with data (go back until we find data)
+            # Get current month
             today = datetime.now()
-            month_obj = today
-            month = None
-            html = None
+            month = f"{today.year}-{today.month:02d}"
             
-            # Try current month first, then go back
-            for i in range(6):  # Try last 6 months
-                month = f"{month_obj.year}-{month_obj.month:02d}"
-                
-                try:
-                    req = urllib.request.Request(f"https://www.smogon.com/stats/{month}/")
-                    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-                    
-                    with urllib.request.urlopen(req, timeout=10) as response:
-                        html = response.read().decode('utf-8')
-                    
-                    # Check if we found VGC data
-                    if 'gen9vgc' in html:
-                        print(f"Found VGC data in month: {month}")
-                        break
-                except HTTPError:
-                    # Try previous month
-                    month_obj = month_obj.replace(day=1) - timedelta(days=1)
+            # Fetch the Smogon stats directory listing
+            smogon_url = f"https://www.smogon.com/stats/{month}/"
+            req = urllib.request.Request(smogon_url)
+            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
             
-            # If no month found, use current as fallback
-            if not month or not html:
-                month = f"{today.year}-{today.month:02d}"
-                req = urllib.request.Request(f"https://www.smogon.com/stats/{month}/")
-                req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    html = response.read().decode('utf-8')
+            with urllib.request.urlopen(req, timeout=10) as response:
+                html = response.read().decode('utf-8')
             
             # Parse available regulations and ELO levels from filenames
             regulations = set()
