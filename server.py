@@ -209,7 +209,7 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Error scraping regulations: {e}")
             # Return default values if scraping fails
             self.send_json_response({
-                "regulations": ["regh", "regi", "regj"],
+                "regulations": ["regf", "regh", "regi", "regj"],
                 "elo_levels": ["0", "1500", "1630", "1760"],
                 "error": str(e)
             })
