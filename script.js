@@ -630,15 +630,18 @@ function displayResults() {
             
             html += `<div class="ev-spread">`;
             html += `<div class="ev-values">`;
+            html += `<span class="ev-stat nature">${evs.nature}</span>`;
             html += `<span class="ev-stat">HP: ${evs.hp}</span>`;
             html += `<span class="ev-stat">Atk: ${evs.atk}</span>`;
             html += `<span class="ev-stat">Def: ${evs.def}</span>`;
             html += `<span class="ev-stat">SpA: ${evs.spa}</span>`;
             html += `<span class="ev-stat">SpD: ${evs.spd}</span>`;
             html += `<span class="ev-stat">Spe: ${evs.spe}</span>`;
-            html += `<span class="ev-stat nature">${evs.nature}</span>`;
             html += `</div>`;
+            html += `<div class="usage-actions">`;
             html += `<div class="${usageClass}">${spread.formattedPercentage}</div>`;
+            html += `<button class="copy-btn" onclick="copySpreadToClipboard('${pokemonName}', '${spread.spread}')" title="Copiar spread">📋</button>`;
+            html += `</div>`;
             html += `</div>`;
         }
         
@@ -647,6 +650,40 @@ function displayResults() {
     
     resultsDiv.innerHTML = html;
     resultsDiv.style.display = 'block';
+}
+
+/**
+ * Copy EV spread to clipboard in Showdown format
+ */
+function copySpreadToClipboard(pokemonName, spreadString) {
+    const parts = spreadString.split(':');
+    if (parts.length !== 2) return;
+    
+    const nature = parts[0];
+    const evs = parts[1].split('/');
+    
+    if (evs.length !== 6) return;
+    
+    // Format: EVs: 124 HP / 0 Atk / 172 Def / 68 SpA / 4 SpD / 132 Spe
+    // Timid Nature
+    const showdownFormat = `EVs: ${evs[0]} HP / ${evs[1]} Atk / ${evs[2]} Def / ${evs[3]} SpA / ${evs[4]} SpD / ${evs[5]} Spe\n${nature} Nature`;
+    
+    navigator.clipboard.writeText(showdownFormat).then(() => {
+        // Find the button that was clicked to show feedback
+        const buttons = document.querySelectorAll('.copy-btn');
+        for (const btn of buttons) {
+            if (btn.getAttribute('onclick').includes(spreadString)) {
+                const originalText = btn.textContent;
+                btn.textContent = '✅';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+                break;
+            }
+        }
+    }).catch(err => {
+        console.error('Error al copiar al portapapeles:', err);
+    });
 }
 
 /**

@@ -431,9 +431,35 @@ h1 {
     }
 }
 
-/* Usage percentage color coding */
-.usage-percent.high-usage { 
-    background: #e74c3c; 
+.usage-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.copy-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.copy-btn:hover {
+    background: #764ba2;
+    transform: scale(1.1);
+}
+
+.copy-btn:active {
+    transform: scale(0.9);
 }
 
 .usage-percent.medium-usage { 
