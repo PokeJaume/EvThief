@@ -12,8 +12,11 @@ from urllib.error import HTTPError, URLError
 
 class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
     # Security allowlists and validation patterns
-    VALID_REGULATIONS = {'regf', 'regg', 'regh', 'regi', 'regj', 'regk', 'regl', 'regm', 'regn', 'rego', 'regp', 'regq'}
+    VALID_REGULATIONS = {'regf', 'regg', 'regh', 'regi', 'regj', 'regk', 'regl', 'regm', 'regn', 'rego', 'regp', 'regq', 'regma'}
     VALID_FORMATS = {'bo1', 'bo3'}
+    
+    # Champions Series regulations that use a different URL prefix on Smogon
+    CHAMPIONS_REGULATIONS = {'regma'}
     MONTH_PATTERN = re.compile(r'^\d{4}-\d{2}$')
     ELO_PATTERN = re.compile(r'^\d+$')
     
@@ -66,7 +69,12 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
         # Map regulations to their respective years
         # regf, regg are 2025 regulations (but we're now in 2026)
         # regh, regi, regj, regk, etc. are 2026+ regulations
+        # Champions Series (regma) always uses 2026
         regulations_2025 = {'regf', 'regg'}
+        
+        # Champions regulations don't follow year pattern
+        if regulation in self.CHAMPIONS_REGULATIONS:
+            return '2026'
         
         # If requesting old regulation data from past year,
         # but current year is different, use current year
@@ -166,27 +174,44 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
     def handle_available_regulations(self):
         """Scrape Smogon to get available VGC regulations and ELO levels"""
         try:
-            # Get current month
+            # Try recent months (current and up to 3 months back) until one works
             today = datetime.now()
-            month = f"{today.year}-{today.month:02d}"
+            html = None
+            month = None
+            for months_back in range(0, 4):
+                candidate = today.replace(day=1) - timedelta(days=months_back * 30)
+                candidate_month = f"{candidate.year}-{candidate.month:02d}"
+                smogon_url = f"https://www.smogon.com/stats/{candidate_month}/"
+                req = urllib.request.Request(smogon_url)
+                req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+                try:
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        html = response.read().decode('utf-8')
+                        month = candidate_month
+                        print(f"Successfully fetched regulations from {candidate_month}")
+                        break
+                except Exception:
+                    print(f"No data for {candidate_month}, trying earlier month...")
             
-            # Fetch the Smogon stats directory listing
-            smogon_url = f"https://www.smogon.com/stats/{month}/"
-            req = urllib.request.Request(smogon_url)
-            req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-            
-            with urllib.request.urlopen(req, timeout=10) as response:
-                html = response.read().decode('utf-8')
+            if not html:
+                raise Exception("No stats data found in the last 4 months")
             
             # Parse available regulations and ELO levels from filenames
             regulations = set()
             elo_levels = set()
             
-            # Match patterns like: gen9vgc2026regfbo3-1630.txt.gz
+            # Match standard VGC: gen9vgc2026regfbo3-1630.txt
             import re
             pattern = r'gen9vgc\d{4}(reg[a-z])(bo3)?-(\d+)\.txt'
-            
             for match in re.finditer(pattern, html):
+                regulation = match.group(1)
+                elo = match.group(3)
+                regulations.add(regulation)
+                elo_levels.add(elo)
+            
+            # Match Champions Series VGC: gen9championsvgc2026regmabo3-1630.txt
+            champions_pattern = r'gen9championsvgc\d{4}(reg[a-z]+)(bo3)?-(\d+)\.txt'
+            for match in re.finditer(champions_pattern, html):
                 regulation = match.group(1)
                 elo = match.group(3)
                 regulations.add(regulation)
@@ -209,7 +234,7 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Error scraping regulations: {e}")
             # Return default values if scraping fails
             self.send_json_response({
-                "regulations": ["regf", "regh", "regi", "regj"],
+                "regulations": ["regf", "regh", "regi", "regj", "regma"],
                 "elo_levels": ["0", "1500", "1630", "1760"],
                 "error": str(e)
             })
@@ -272,8 +297,16 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             # Extract year and auto-correct for current season
             year = self.get_correct_year_for_regulation(month, regulation)
             
-            # Build Smogon URL with correct year derived from month
-            if format_type == "bo1":
+            # Build Smogon URL - Champions Series uses a different prefix
+            if regulation in self.CHAMPIONS_REGULATIONS:
+                if format_type == "bo1":
+                    smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9championsvgc{year}{regulation}-{elo}.json"
+                elif format_type == "bo3":
+                    smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9championsvgc{year}{regulation}bo3-{elo}.json"
+                else:
+                    self.send_error(400, "Invalid format. Use 'bo1' or 'bo3'")
+                    return
+            elif format_type == "bo1":
                 smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc{year}{regulation}-{elo}.json"
             elif format_type == "bo3":
                 smogon_url = f"https://www.smogon.com/stats/{month}/chaos/gen9vgc{year}{regulation}bo3-{elo}.json"

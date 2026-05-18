@@ -20,12 +20,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 /**
- * Format regulation display (regf -> Reg F, regh -> Reg H, etc.)
+ * Format regulation display (regf -> Reg F, regh -> Reg H, regma -> Champions Reg MA, etc.)
  */
 function formatRegulation(reg) {
     const lowerReg = reg.toLowerCase();
-    const letter = lowerReg.replace('reg', '').toUpperCase();
-    return `Reg ${letter}`;
+    const suffix = lowerReg.replace('reg', '').toUpperCase();
+    // Multi-letter regulations are Champions Series formats
+    if (suffix.length > 1) {
+        return `Champions Reg ${suffix}`;
+    }
+    return `Reg ${suffix}`;
 }
 
 /**
@@ -69,7 +73,7 @@ async function populateRegulationsAndElos() {
         const regSelect = document.getElementById('regulationSelect');
         const eloSelect = document.getElementById('eloSelect');
         
-        ['regf', 'regh', 'regi', 'regj'].forEach((reg, index) => {
+        ['regf', 'regh', 'regi', 'regj', 'regma'].forEach((reg, index) => {
             const option = document.createElement('option');
             option.value = reg;
             option.textContent = formatRegulation(reg);
