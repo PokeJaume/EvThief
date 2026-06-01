@@ -3,8 +3,37 @@ let filteredData = {};
 let showOnlyPopular = false;
 let currentSort = 'usage';
 
+/**
+ * Toggle light/dark theme
+ */
+function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = isDark ? 'Modo oscuro' : 'Modo claro';
+}
+
+/**
+ * Format percentage with adaptive decimal places based on magnitude
+ */
+function formatPercentage(value) {
+    if (value === 0) return '0%';
+    if (value >= 1) return value.toFixed(2) + '%';
+    if (value >= 0.01) return value.toFixed(4) + '%';
+    if (value >= 0.0001) return value.toFixed(6) + '%';
+    return value.toFixed(8) + '%';
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', async function() {
+    // Apply saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeIcon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    document.getElementById('themeLabel').textContent = savedTheme === 'dark' ? 'Modo claro' : 'Modo oscuro';
     populateMonthOptions();
     await populateRegulationsAndElos(); // Load available regulations first
     document.getElementById('loadDataBtn').addEventListener('click', loadSmogonData);
@@ -301,14 +330,14 @@ function processSmogonData(data) {
             
             const evs = parseEVSpread(spreadString);
             const usageNum = parseFloat(usage) || 0;
-            const percentage = totalCount > 0 ? ((usageNum / totalCount) * 100).toFixed(2) : '0.00';
+            const percentageValue = totalCount > 0 ? (usageNum / totalCount) * 100 : 0;
             
             spreads.push({
                 spread: spreadString,
                 evs: evs,
                 usage: usageNum,
-                percentage: parseFloat(percentage),
-                formattedPercentage: percentage + '%'
+                percentage: percentageValue,
+                formattedPercentage: formatPercentage(percentageValue)
             });
             
             totalSpreads++;
@@ -620,7 +649,10 @@ function displayResults() {
     
     for (const [pokemonName, spreads] of sortedPokemon) {
         html += `<div class="pokemon-card">`;
-        html += `<div class="pokemon-name">${pokemonName} <span class="set-count">(${spreads.length} sets)</span></div>`;
+        html += `<div class="pokemon-header">`;
+        html += `<span class="pokemon-name">${pokemonName}</span>`;
+        html += `<span class="set-count">${spreads.length} sets</span>`;
+        html += `</div>`;
         
         for (const spread of spreads) {
             const evs = spread.evs;
@@ -643,8 +675,8 @@ function displayResults() {
             html += `<span class="ev-stat">Spe: ${evs.spe}</span>`;
             html += `</div>`;
             html += `<div class="usage-actions">`;
-            html += `<div class="${usageClass}">${spread.formattedPercentage}</div>`;
-            html += `<button class="copy-btn" onclick="copySpreadToClipboard('${pokemonName}', '${spread.spread}')" title="Copiar spread">📋</button>`;
+            html += `<span class="${usageClass}">${spread.formattedPercentage}</span>`;
+            html += `<button class="copy-btn" onclick="copySpreadToClipboard('${pokemonName}', '${spread.spread}')" title="Copiar spread">⧉</button>`;
             html += `</div>`;
             html += `</div>`;
         }
@@ -715,16 +747,8 @@ function sortBy(method) {
  */
 function toggleOnlyPopular() {
     showOnlyPopular = !showOnlyPopular;
-    
     const btn = document.querySelector('button[onclick="toggleOnlyPopular()"]');
-    if (showOnlyPopular) {
-        btn.classList.add('active');
-        btn.textContent = '⭐ Mostrando populares';
-    } else {
-        btn.classList.remove('active');
-        btn.textContent = '⭐ Solo populares (>5%)';
-    }
-    
+    btn.classList.toggle('active', showOnlyPopular);
     filterResults();
 }
 
@@ -734,14 +758,7 @@ function toggleOnlyPopular() {
 function toggleHelpPanel() {
     const helpPanel = document.getElementById('helpPanel');
     const button = document.querySelector('button[onclick="toggleHelpPanel()"]');
-    
-    if (helpPanel.style.display === 'none') {
-        helpPanel.style.display = 'block';
-        button.classList.add('active');
-        button.textContent = '❌ Cerrar ayuda';
-    } else {
-        helpPanel.style.display = 'none';
-        button.classList.remove('active');
-        button.textContent = '❓ Ayuda filtros';
-    }
+    const isOpen = helpPanel.style.display !== 'none';
+    helpPanel.style.display = isOpen ? 'none' : 'block';
+    button.classList.toggle('active', !isOpen);
 }
