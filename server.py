@@ -93,6 +93,13 @@ class SmogonProxyHandler(http.server.SimpleHTTPRequestHandler):
             raise ValueError(f"Invalid filename: {filename}")
         return sanitized
 
+    def end_headers(self):
+        # Disable caching for all responses so changes are always visible
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        super().end_headers()
+
     def do_GET(self):
         # Handle different API endpoints
         if self.path.startswith('/api/cached/'):
