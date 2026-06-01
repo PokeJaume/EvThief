@@ -647,23 +647,28 @@ function displayResults() {
     
     let html = '';
     
+    const chevronSvg = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
     for (const [pokemonName, spreads] of sortedPokemon) {
         html += `<div class="pokemon-card">`;
-        html += `<div class="pokemon-header">`;
+        html += `<div class="pokemon-header" onclick="toggleCollapse(this)">`;
+        html += `<div class="pokemon-header-left">`;
         html += `<span class="pokemon-name">${pokemonName}</span>`;
         html += `<span class="set-count">${spreads.length} sets</span>`;
         html += `</div>`;
-        
+        html += `<span class="collapse-arrow">${chevronSvg}</span>`;
+        html += `</div>`;
+        html += `<div class="spreads-container">`;
+
         for (const spread of spreads) {
             const evs = spread.evs;
             if (!evs) continue;
-            
-            // Color code usage percentage
+
             let usageClass = 'usage-percent';
             if (spread.percentage > 20) usageClass += ' high-usage';
             else if (spread.percentage > 10) usageClass += ' medium-usage';
             else usageClass += ' low-usage';
-            
+
             html += `<div class="ev-spread">`;
             html += `<div class="ev-values">`;
             html += `<span class="ev-stat nature">${evs.nature}</span>`;
@@ -680,8 +685,9 @@ function displayResults() {
             html += `</div>`;
             html += `</div>`;
         }
-        
-        html += `</div>`;
+
+        html += `</div>`; // spreads-container
+        html += `</div>`; // pokemon-card
     }
     
     resultsDiv.innerHTML = html;
@@ -743,8 +749,12 @@ function sortBy(method) {
 }
 
 /**
- * Toggle showing only popular spreads (>5%)
+ * Toggle collapse/expand a pokemon card
  */
+function toggleCollapse(headerEl) {
+    headerEl.closest('.pokemon-card').classList.toggle('collapsed');
+}
+
 function toggleOnlyPopular() {
     showOnlyPopular = !showOnlyPopular;
     const btn = document.querySelector('button[onclick="toggleOnlyPopular()"]');
