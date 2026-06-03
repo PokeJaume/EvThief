@@ -287,39 +287,27 @@ function processSmogonData(data) {
     pokemonData = {};
     let totalSpreads = 0;
     
-    // Debug: show JSON structure
-    console.log('Estructura del JSON:', Object.keys(data).slice(0, 5));
-    console.log('Primera entrada:', Object.entries(data)[0]);
-    
     // Handle Smogon chaos structure with data.data
     const dataToProcess = data.data || data;
     
     // Process each Pokémon in the JSON
     for (const [pokemonName, pokemonInfo] of Object.entries(dataToProcess)) {
-        console.log(`Procesando ${pokemonName}:`, Object.keys(pokemonInfo));
-        
         // Handle different JSON structures
         let spreadsData = null;
         let totalCount = 0;
         
         if (pokemonInfo.Spreads) {
-            // Current chaos structure: pokemonInfo.Spreads
             spreadsData = pokemonInfo.Spreads;
             totalCount = pokemonInfo["Raw count"] || 0;
         } else if (pokemonInfo.Raw && pokemonInfo.Raw.spreads) {
-            // Alternative chaos structure
             spreadsData = pokemonInfo.Raw.spreads;
             totalCount = pokemonInfo.Raw.count;
         } else if (pokemonInfo.spreads) {
-            // Alternative lowercase structure
             spreadsData = pokemonInfo.spreads;
             totalCount = pokemonInfo.count || pokemonInfo["raw count"] || 0;
         }
         
-        if (!spreadsData) {
-            console.log(`No se encontraron spreads para ${pokemonName}`);
-            continue;
-        }
+        if (!spreadsData) continue;
 
         const spreads = [];
         
@@ -416,7 +404,7 @@ function updateStatistics() {
     document.getElementById('totalPokemon').textContent = totalPokemon;
     document.getElementById('totalSpreads').textContent = totalSpreads;
     document.getElementById('avgSpreads').textContent = avgSpreads;
-    document.getElementById('statsummary').style.display = 'block';
+    document.getElementById('statsummary').style.display = 'flex';
 }
 
 /**
