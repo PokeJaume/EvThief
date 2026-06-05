@@ -234,10 +234,17 @@ async function loadSmogonData() {
             throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
         }
         
+        console.log('JSON fetch OK, parsing...');
         const data = await response.json();
+        console.log('JSON parsed OK, keys:', Object.keys(data).slice(0, 5));
         const successIcon = hasCachedData ? '⚡' : '✅';
         document.getElementById('loadStatus').innerHTML = `<strong>${successIcon} Datos cargados exitosamente desde ${dataSource}</strong>`;
-        processSmogonData(data);
+        try {
+            processSmogonData(data);
+        } catch (processError) {
+            console.log('ERROR en processSmogonData:', processError.message, processError.stack);
+            throw processError;
+        }
         
         // Show success message for cached data
         if (hasCachedData) {
@@ -289,6 +296,7 @@ function processSmogonData(data) {
     
     // Handle Smogon chaos structure with data.data
     const dataToProcess = data.data || data;
+    console.log('dataToProcess type:', typeof dataToProcess, 'keys count:', Object.keys(dataToProcess).length);
     
     // Process each Pokémon in the JSON
     for (const [pokemonName, pokemonInfo] of Object.entries(dataToProcess)) {
@@ -636,8 +644,12 @@ function displayResults() {
     let html = '';
     
     const chevronSvg = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const DEFAULT_SPREADS_SHOWN = 25;
 
     for (const [pokemonName, spreads] of sortedPokemon) {
+        // Escape single quotes in Pokémon names for safe inline event handlers
+        const safeName = pokemonName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
         html += `<div class="pokemon-card">`;
         html += `<div class="pokemon-header" onclick="toggleCollapse(this)">`;
         html += `<div class="pokemon-header-left">`;
@@ -648,7 +660,10 @@ function displayResults() {
         html += `</div>`;
         html += `<div class="spreads-container">`;
 
-        for (const spread of spreads) {
+        const visibleSpreads = spreads.slice(0, DEFAULT_SPREADS_SHOWN);
+        const hiddenCount = spreads.length - visibleSpreads.length;
+
+        for (const spread of visibleSpreads) {
             const evs = spread.evs;
             if (!evs) continue;
 
@@ -656,6 +671,8 @@ function displayResults() {
             if (spread.percentage > 20) usageClass += ' high-usage';
             else if (spread.percentage > 10) usageClass += ' medium-usage';
             else usageClass += ' low-usage';
+
+            const safeSpread = spread.spread.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
             html += `<div class="ev-spread">`;
             html += `<div class="ev-values">`;
@@ -669,9 +686,13 @@ function displayResults() {
             html += `</div>`;
             html += `<div class="usage-actions">`;
             html += `<span class="${usageClass}">${spread.formattedPercentage}</span>`;
-            html += `<button class="copy-btn" onclick="copySpreadToClipboard('${pokemonName}', '${spread.spread}')" title="Copiar spread">⧉</button>`;
+            html += `<button class="copy-btn" onclick="copySpreadToClipboard('${safeName}', '${safeSpread}')" title="Copiar spread">⧉</button>`;
             html += `</div>`;
             html += `</div>`;
+        }
+
+        if (hiddenCount > 0) {
+            html += `<div class="show-more-row"><button class="show-more-btn" onclick="expandSpreads(this, '${safeName}')">+ ${hiddenCount} spreads más</button></div>`;
         }
 
         html += `</div>`; // spreads-container
@@ -741,6 +762,53 @@ function sortBy(method) {
  */
 function toggleCollapse(headerEl) {
     headerEl.closest('.pokemon-card').classList.toggle('collapsed');
+}
+
+/**
+ * Expand all remaining spreads for a Pokémon card
+ */
+function expandSpreads(btnEl, pokemonName) {
+    // Decode the escaped name back
+    const decodedName = pokemonName.replace(/\\'/g, "'").replace(/\\\\/g, '\\');
+    const spreads = filteredData[decodedName];
+    if (!spreads) return;
+
+    const container = btnEl.closest('.spreads-container');
+    const showMoreRow = btnEl.closest('.show-more-row');
+    const chevronSvg = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+    let html = '';
+    for (const spread of spreads.slice(25)) {
+        const evs = spread.evs;
+        if (!evs) continue;
+
+        let usageClass = 'usage-percent';
+        if (spread.percentage > 20) usageClass += ' high-usage';
+        else if (spread.percentage > 10) usageClass += ' medium-usage';
+        else usageClass += ' low-usage';
+
+        const safeName = pokemonName;
+        const safeSpread = spread.spread.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+        html += `<div class="ev-spread">`;
+        html += `<div class="ev-values">`;
+        html += `<span class="ev-stat nature">${evs.nature}</span>`;
+        html += `<span class="ev-stat">HP: ${evs.hp}</span>`;
+        html += `<span class="ev-stat">Atk: ${evs.atk}</span>`;
+        html += `<span class="ev-stat">Def: ${evs.def}</span>`;
+        html += `<span class="ev-stat">SpA: ${evs.spa}</span>`;
+        html += `<span class="ev-stat">SpD: ${evs.spd}</span>`;
+        html += `<span class="ev-stat">Spe: ${evs.spe}</span>`;
+        html += `</div>`;
+        html += `<div class="usage-actions">`;
+        html += `<span class="${usageClass}">${spread.formattedPercentage}</span>`;
+        html += `<button class="copy-btn" onclick="copySpreadToClipboard('${safeName}', '${safeSpread}')" title="Copiar spread">⧉</button>`;
+        html += `</div>`;
+        html += `</div>`;
+    }
+
+    showMoreRow.insertAdjacentHTML('beforebegin', html);
+    showMoreRow.remove();
 }
 
 function toggleOnlyPopular() {
