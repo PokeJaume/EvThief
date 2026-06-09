@@ -663,8 +663,8 @@ function displayResults() {
     const DEFAULT_SPREADS_SHOWN = 25;
 
     for (const [pokemonName, spreads] of sortedPokemon) {
-        // Escape single quotes in Pokémon names for safe inline event handlers
-        const safeName = pokemonName.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        // encodeURIComponent handles any character (apostrophes, accents, etc.)
+        const encodedName = encodeURIComponent(pokemonName);
 
         html += `<div class="pokemon-card">`;
         html += `<div class="pokemon-header" onclick="toggleCollapse(this)">`;
@@ -688,7 +688,7 @@ function displayResults() {
             else if (spread.percentage > 10) usageClass += ' medium-usage';
             else usageClass += ' low-usage';
 
-            const safeSpread = spread.spread.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const encodedSpread = encodeURIComponent(spread.spread);
 
             html += `<div class="ev-spread">`;
             html += `<div class="ev-values">`;
@@ -702,13 +702,13 @@ function displayResults() {
             html += `</div>`;
             html += `<div class="usage-actions">`;
             html += `<span class="${usageClass}">${spread.formattedPercentage}</span>`;
-            html += `<button class="copy-btn" onclick="copySpreadToClipboard('${safeName}', '${safeSpread}')" title="Copiar spread">⧉</button>`;
+            html += `<button class="copy-btn" onclick="copySpreadToClipboard(decodeURIComponent('${encodedName}'),decodeURIComponent('${encodedSpread}'))" title="Copiar spread">⧉</button>`;
             html += `</div>`;
             html += `</div>`;
         }
 
         if (hiddenCount > 0) {
-            html += `<div class="show-more-row"><button class="show-more-btn" onclick="expandSpreads(this, '${safeName}')">+ ${hiddenCount} spreads más</button></div>`;
+            html += `<div class="show-more-row"><button class="show-more-btn" onclick="expandSpreads(this,decodeURIComponent('${encodedName}'))">+ ${hiddenCount} spreads más</button></div>`;
         }
 
         html += `</div>`; // spreads-container
@@ -784,14 +784,12 @@ function toggleCollapse(headerEl) {
  * Expand all remaining spreads for a Pokémon card
  */
 function expandSpreads(btnEl, pokemonName) {
-    // Decode the escaped name back
-    const decodedName = pokemonName.replace(/\\'/g, "'").replace(/\\\\/g, '\\');
-    const spreads = filteredData[decodedName];
+    // pokemonName arrives already decoded via decodeURIComponent() in the onclick
+    const spreads = filteredData[pokemonName];
     if (!spreads) return;
 
-    const container = btnEl.closest('.spreads-container');
     const showMoreRow = btnEl.closest('.show-more-row');
-    const chevronSvg = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const encodedName = encodeURIComponent(pokemonName);
 
     let html = '';
     for (const spread of spreads.slice(25)) {
@@ -803,8 +801,7 @@ function expandSpreads(btnEl, pokemonName) {
         else if (spread.percentage > 10) usageClass += ' medium-usage';
         else usageClass += ' low-usage';
 
-        const safeName = pokemonName;
-        const safeSpread = spread.spread.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const encodedSpread = encodeURIComponent(spread.spread);
 
         html += `<div class="ev-spread">`;
         html += `<div class="ev-values">`;
@@ -818,7 +815,7 @@ function expandSpreads(btnEl, pokemonName) {
         html += `</div>`;
         html += `<div class="usage-actions">`;
         html += `<span class="${usageClass}">${spread.formattedPercentage}</span>`;
-        html += `<button class="copy-btn" onclick="copySpreadToClipboard('${safeName}', '${safeSpread}')" title="Copiar spread">⧉</button>`;
+        html += `<button class="copy-btn" onclick="copySpreadToClipboard(decodeURIComponent('${encodedName}'),decodeURIComponent('${encodedSpread}'))" title="Copiar spread">⧉</button>`;
         html += `</div>`;
         html += `</div>`;
     }
