@@ -1,0 +1,35 @@
+Server running on port 5000
+Access the app at: http://localhost:5000
+127.0.0.1 - - [08/Jun/2026 12:10:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:10] "GET /styles.css?v=3 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:10] "GET /script.js?v=3 HTTP/1.1" 200 -
+No data for 2026-06, trying earlier month...
+Successfully fetched regulations from 2026-05
+127.0.0.1 - - [08/Jun/2026 12:10:11] "GET /api/available-regulations HTTP/1.1" 200 -
+Found regulations: ['regi', 'regma'], ELO levels: ['0', '1500', '1630', '1760']
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET /styles.css?v=3 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET /script.js?v=3 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET /script.js?v=3 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET /styles.css?v=3 HTTP/1.1" 200 -
+No data for 2026-06, trying earlier month...
+Successfully fetched regulations from 2026-05
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET /api/available-regulations HTTP/1.1" 200 -
+Found regulations: ['regi', 'regma'], ELO levels: ['0', '1500', '1630', '1760']
+127.0.0.1 - - [08/Jun/2026 12:10:12] code 404, message File not found
+127.0.0.1 - - [08/Jun/2026 12:10:12] "GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jun/2026 12:10:13] code 404, message File not found
+127.0.0.1 - - [08/Jun/2026 12:10:13] "GET /apple-touch-icon.png HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jun/2026 12:10:13] code 404, message File not found
+127.0.0.1 - - [08/Jun/2026 12:10:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jun/2026 12:10:18] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:18] "GET /styles.css?v=3 HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jun/2026 12:10:18] "GET /script.js?v=3 HTTP/1.1" 200 -
+No data for 2026-06, trying earlier month...
+Successfully fetched regulations from 2026-05
+127.0.0.1 - - [08/Jun/2026 12:10:18] "GET /api/available-regulations HTTP/1.1" 200 -
+Found regulations: ['regi', 'regma'], ELO levels: ['0', '1500', '1630', '1760']
+127.0.0.1 - - [08/Jun/2026 12:10:36] "GET /api/available-months HTTP/1.1" 200 -
+Fetching data from: https://www.smogon.com/stats/2026-05/chaos/gen9championsvgc2026regmabo3-1630.json
+127.0.0.1 - - [08/Jun/2026 12:10:36] "GET /api/smogon/2026-05/bo3/regma/1630 HTTP/1.1" 200 -
+Successfully proxied data from Smogon (6746897 bytes)

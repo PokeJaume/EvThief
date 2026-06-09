@@ -1,0 +1,23 @@
+Server running on port 5000
+Access the app at: http://localhost:5000
+Tip: run 'python scripts/download_data.py' to pre-download data/
+  127.0.0.1 "GET / HTTP/1.1" 200 -
+  127.0.0.1 "GET /script.js?v=3 HTTP/1.1" 200 -
+  127.0.0.1 "GET /styles.css?v=3 HTTP/1.1" 200 -
+  127.0.0.1 "GET / HTTP/1.1" 200 -
+  127.0.0.1 "GET /styles.css?v=3 HTTP/1.1" 200 -
+  127.0.0.1 "GET /script.js?v=3 HTTP/1.1" 200 -
+  127.0.0.1 "GET /data/manifest.json HTTP/1.1" 200 -
+  127.0.0.1 "GET /data/manifest.json HTTP/1.1" 200 -
+  Regulations from 2026-05: ['regi', 'regma']
+  127.0.0.1 "GET /api/available-regulations HTTP/1.1" 200 -
+  Regulations from 2026-05: ['regi', 'regma']
+  127.0.0.1 "GET /api/available-regulations HTTP/1.1" 200 -
+  127.0.0.1 code 404, message File not found
+  127.0.0.1 "GET /favicon.ico HTTP/1.1" 404 -
+  127.0.0.1 "GET / HTTP/1.1" 200 -
+  127.0.0.1 "GET /styles.css?v=3 HTTP/1.1" 200 -
+  127.0.0.1 "GET /script.js?v=3 HTTP/1.1" 200 -
+  127.0.0.1 "GET /data/manifest.json HTTP/1.1" 200 -
+  Regulations from 2026-05: ['regi', 'regma']
+  127.0.0.1 "GET /api/available-regulations HTTP/1.1" 200 -
