@@ -2,6 +2,7 @@ let pokemonData = {};
 let filteredData = {};
 let showOnlyPopular = false;
 let currentSort = 'usage';
+let manifestData = null;
 
 /**
  * Toggle light/dark theme
@@ -34,12 +35,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.getElementById('themeIcon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
     document.getElementById('themeLabel').textContent = savedTheme === 'dark' ? 'Modo claro' : 'Modo oscuro';
-    populateMonthOptions();
-    await populateRegulationsAndElos(); // Load available regulations first
+
+    // Prefer pre-downloaded data/manifest.json (GitHub Pages);
+    // fall back to live scraping via the Python server (local dev).
+    const hasManifest = await loadManifest();
+    if (hasManifest) {
+        populateFromManifest();
+    } else {
+        populateMonthOptions();
+        await populateRegulationsAndElos();
+    }
+
     document.getElementById('loadDataBtn').addEventListener('click', loadSmogonData);
     document.getElementById('applyFilterBtn').addEventListener('click', filterResults);
-    
-    // Allow Enter key to trigger filtering in search inputs
+
     document.getElementById('searchPokemon').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') filterResults();
     });
@@ -176,113 +185,120 @@ function populateMonthOptions() {
 }
 
 /**
- * Check if cached data is available
+ * Load data/manifest.json.
+ * Returns true if the manifest is available and has at least one month of data.
  */
-async function checkCachedData() {
+async function loadManifest() {
     try {
-        const response = await fetch('/api/available-months');
-        if (response.ok) {
-            const data = await response.json();
-            return data.available_months || [];
+        const res = await fetch('./data/manifest.json');
+        if (!res.ok) return false;
+        const m = await res.json();
+        if (m.available_months && m.available_months.length > 0) {
+            manifestData = m;
+            console.log('Manifest loaded:', m.available_months);
+            return true;
         }
-    } catch (error) {
-        console.log('No cached data available, will use proxy');
+    } catch (e) {
+        console.log('Manifest not available, falling back to server API');
     }
-    return [];
+    return false;
 }
 
 /**
- * Load data from cache or Smogon API
+ * Populate all dropdowns from data/manifest.json.
+ */
+function populateFromManifest() {
+    const monthNames = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    // Months
+    const monthSelect = document.getElementById('monthSelect');
+    monthSelect.innerHTML = '';
+    manifestData.available_months.forEach((m, i) => {
+        const [y, mo] = m.split('-');
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = `${monthNames[parseInt(mo) - 1]} ${y}`;
+        if (i === 0) opt.selected = true;
+        monthSelect.appendChild(opt);
+    });
+
+    // Regulations (unique, from files list)
+    const regs = [...new Set(manifestData.files.map(f => f.regulation))].sort();
+    const regSelect = document.getElementById('regulationSelect');
+    regSelect.innerHTML = '';
+    regs.forEach((reg, i) => {
+        const opt = document.createElement('option');
+        opt.value = reg;
+        opt.textContent = formatRegulation(reg);
+        if (i === regs.length - 1) opt.selected = true; // most recent regulation
+        regSelect.appendChild(opt);
+    });
+
+    // ELO levels (unique, sorted numerically)
+    const elos = [...new Set(manifestData.files.map(f => f.elo))].sort((a, b) => parseInt(a) - parseInt(b));
+    const eloSelect = document.getElementById('eloSelect');
+    eloSelect.innerHTML = '';
+    elos.forEach((elo, i) => {
+        const opt = document.createElement('option');
+        opt.value = elo;
+        opt.textContent = elo;
+        if (i === 1) opt.selected = true; // default: 1500
+        eloSelect.appendChild(opt);
+    });
+}
+
+/**
+ * Load VGC data.
+ * - On GitHub Pages: reads from pre-downloaded data/{month}/{regulation}_{format}_{elo}.json
+ * - Local dev (no manifest): proxies live through the Python server
  */
 async function loadSmogonData() {
     const month = document.getElementById('monthSelect').value;
     const format = document.getElementById('formatSelect').value;
     const regulation = document.getElementById('regulationSelect').value;
     const elo = document.getElementById('eloSelect').value;
-    
-    // Check for cached data first
-    const cachedMonths = await checkCachedData();
-    const hasCachedData = cachedMonths.some(cm => cm.month === month);
-    
-    const dataSource = hasCachedData ? 'caché local' : 'Smogon API';
-    const speedNote = hasCachedData ? '⚡ Acceso instantáneo' : '📡 Descargando datos';
-    
+
     const formatLabel = format === 'bo1' ? 'BO1' : 'BO3';
     const regulationLabel = formatRegulation(regulation);
-    document.getElementById('loadStatus').innerHTML = `<strong>${speedNote} de ${month} ${formatLabel} ${regulationLabel} (ELO ${elo}+) desde ${dataSource}...</strong>`;
+    const source = manifestData ? '⚡ Cargando archivo local' : '📡 Descargando de Smogon';
+    document.getElementById('loadStatus').innerHTML =
+        `<strong>${source} — ${month} ${formatLabel} ${regulationLabel} ELO ${elo}+...</strong>`;
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('statsummary').style.display = 'none';
-    
+
     try {
         let url;
-        
-        if (hasCachedData) {
-            // Use cached data API
-            url = `/api/cached/${month}/gen9ou/${format}/${regulation}/${elo}`;
-            console.log('Using cached data from:', url);
+        if (manifestData) {
+            // GitHub Pages path: read pre-downloaded file
+            url = `./data/${month}/${regulation}_${format}_${elo}.json`;
         } else {
-            // Use proxy API
+            // Local dev fallback: Python server proxy
             url = `/api/smogon/${month}/${format}/${regulation}/${elo}`;
-            console.log('Using proxy API:', url);
         }
-        
+
         const response = await fetch(url);
-        
         if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            const hint = response.status === 404
+                ? 'Esta combinación de mes/regulación/ELO no está disponible en los archivos descargados.'
+                : `Error HTTP ${response.status}`;
+            throw new Error(hint);
         }
-        
-        console.log('JSON fetch OK, parsing...');
+
         const data = await response.json();
-        console.log('JSON parsed OK, keys:', Object.keys(data).slice(0, 5));
-        const successIcon = hasCachedData ? '⚡' : '✅';
-        document.getElementById('loadStatus').innerHTML = `<strong>${successIcon} Datos cargados exitosamente desde ${dataSource}</strong>`;
-        try {
-            processSmogonData(data);
-        } catch (processError) {
-            console.log('ERROR en processSmogonData:', processError.message, processError.stack);
-            throw processError;
-        }
-        
-        // Show success message for cached data
-        if (hasCachedData) {
-            console.log('⚡ Datos cargados instantáneamente desde caché local');
-        }
-        
+        document.getElementById('loadStatus').innerHTML =
+            `<strong>✅ Datos cargados — ${month} ${formatLabel} ${regulationLabel} ELO ${elo}+</strong>`;
+        processSmogonData(data);
+
     } catch (error) {
         console.error('Error loading data:', error);
-        
-        // Try fallback to proxy if cached data failed
-        if (hasCachedData) {
-            console.log('Cached data failed, trying proxy...');
-            try {
-                const fallbackUrl = `/api/smogon/${month}/${format}/${regulation}/${elo}`;
-                const fallbackResponse = await fetch(fallbackUrl);
-                
-                if (fallbackResponse.ok) {
-                    const fallbackData = await fallbackResponse.json();
-                    document.getElementById('loadStatus').innerHTML = `<strong>✅ Datos cargados desde Smogon API (fallback)</strong>`;
-                    processSmogonData(fallbackData);
-                    return;
-                }
-            } catch (fallbackError) {
-                console.error('Fallback also failed:', fallbackError);
-            }
-        }
-        
-        let errorMessage = `Error al cargar los datos desde ${dataSource}. `;
-        
-        if (error.message.includes('HTTP: 404')) {
-            errorMessage += 'Los datos para este mes/ELO no están disponibles.';
-        } else if (error.message.includes('Failed to fetch')) {
-            errorMessage += 'Problema de conexión. Verifica tu conexión a internet.';
-        } else {
-            errorMessage += `Detalles: ${error.message}`;
-        }
-        
-        showError(errorMessage);
+        let msg = error.message || 'Error desconocido.';
+        if (msg.includes('Failed to fetch')) msg = 'No se pudo conectar. Comprueba tu conexión.';
+        showError(msg);
         document.getElementById('loadStatus').innerHTML = `<strong>❌ Error al cargar datos</strong>`;
     }
 }
