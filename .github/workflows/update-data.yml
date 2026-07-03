@@ -5,6 +5,10 @@ on:
     - cron: '0 8 2 * *'   # 8:00 UTC on the 2nd of every month
   workflow_dispatch:       # allow manual trigger from the GitHub UI
 
+concurrency:
+  group: update-vgc-data
+  cancel-in-progress: true
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
@@ -14,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -22,6 +28,17 @@ jobs:
 
       - name: Download and process VGC data
         run: python scripts/download_data.py
+
+      - name: Verify generated data
+        run: |
+          test -f data/manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("data/manifest.json").read_text(encoding="utf-8"))
+          print(f"months={len(manifest.get('available_months', []))}")
+          print(f"files={len(manifest.get('files', []))}")
+          PY
 
       - name: Commit and push updated data
         run: |

@@ -1,9 +1,0 @@
-Server running on port 5000
-Access the app at: http://localhost:5000
-127.0.0.1 - - [09/Jun/2026 20:47:26] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 20:47:26] "GET /styles.css?v=3 HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 20:47:27] "GET /script.js?v=3 HTTP/1.1" 200 -
-No data for 2026-06, trying earlier month...
-Successfully fetched regulations from 2026-05
-127.0.0.1 - - [09/Jun/2026 20:47:27] "GET /api/available-regulations HTTP/1.1" 200 -
-Found regulations: ['regi', 'regma'], ELO levels: ['0', '1500', '1630', '1760']
