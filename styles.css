@@ -1,0 +1,614 @@
+/* ── Theme variables ── */
+:root {
+    --bg: #0c0c0f;
+    --surface: #141417;
+    --surface2: #1e1e24;
+    --surface3: #26262e;
+    --border: #2a2a34;
+    --border-light: #353540;
+    --text: #e8e8f0;
+    --text-muted: #7878a0;
+    --text-dim: #50506a;
+    --accent: #5b7cf6;
+    --accent-dim: rgba(91, 124, 246, 0.12);
+    --accent-hover: #4a6bee;
+    --green: #3ecf6a;
+    --green-dim: rgba(62, 207, 106, 0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245, 166, 35, 0.12);
+    --red: #f25757;
+    --red-dim: rgba(242, 87, 87, 0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.12);
+    --radius: 8px;
+    --radius-sm: 5px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] {
+    --bg: #f4f4f7;
+    --surface: #ffffff;
+    --surface2: #f0f0f5;
+    --surface3: #e8e8f0;
+    --border: #dcdce8;
+    --border-light: #e8e8f2;
+    --text: #111118;
+    --text-muted: #5c5c78;
+    --text-dim: #9898b0;
+    --accent: #3d5af1;
+    --accent-dim: rgba(61, 90, 241, 0.08);
+    --accent-hover: #2d4ae0;
+    --green: #1a9e4a;
+    --green-dim: rgba(26, 158, 74, 0.1);
+    --amber: #d48a00;
+    --amber-dim: rgba(212, 138, 0, 0.1);
+    --red: #d93232;
+    --red-dim: rgba(217, 50, 50, 0.1);
+    --purple: #7c3aed;
+    --purple-dim: rgba(124, 58, 237, 0.1);
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s, color 0.2s;
+}
+
+/* ── Layout ── */
+.app-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+}
+
+/* ── Header ── */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+}
+
+.app-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.app-title h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.app-title .title-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    border-opacity: 0.2;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+
+/* ── Theme toggle ── */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.theme-toggle:hover {
+    border-color: var(--border-light);
+    color: var(--text);
+    background: var(--surface3);
+}
+
+.theme-toggle .toggle-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* ── Cards ── */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+}
+
+/* ── Data controls ── */
+.data-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.control-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.data-select {
+    padding: 9px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237878a0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+}
+
+[data-theme="light"] .data-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235c5c78' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.data-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: var(--surface3);
+}
+
+.data-select option {
+    background: var(--surface2);
+    color: var(--text);
+}
+
+/* ── Load button ── */
+.load-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: -0.01em;
+}
+
+.load-btn:hover { background: var(--accent-hover); }
+.load-btn:active { transform: scale(0.98); }
+
+#loadStatus {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    min-height: 20px;
+}
+
+/* ── Search section ── */
+.search-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 640px) {
+    .search-grid { grid-template-columns: 1fr; }
+}
+
+.search-input {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.search-input::placeholder { color: var(--text-dim); }
+
+/* ── Filter buttons ── */
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: -0.01em;
+}
+
+.filter-btn:hover {
+    border-color: var(--border-light);
+    color: var(--text);
+    background: var(--surface3);
+}
+
+.filter-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── Help panel ── */
+.help-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 12px;
+    padding: 16px;
+    animation: fadeSlide 0.2s ease;
+}
+
+.help-panel h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+}
+
+.help-content { display: flex; flex-direction: column; gap: 8px; }
+
+.help-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+
+.help-item strong { color: var(--text); font-weight: 500; white-space: nowrap; }
+.help-desc { color: var(--text-muted); font-size: 12px; }
+
+.help-item code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    background: var(--surface3);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+}
+
+/* ── Stats summary ── */
+.stats-bar {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.stat-block {
+    flex: 1;
+    background: var(--surface);
+    padding: 14px 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ── Pokemon cards ── */
+.pokemon-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
+
+.pokemon-card:hover { border-color: var(--border-light); }
+
+.pokemon-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.pokemon-header:hover { background: var(--surface3); }
+
+.pokemon-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pokemon-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.set-count {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.collapse-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.collapse-arrow svg { display: block; }
+
+.pokemon-card.collapsed .collapse-arrow { transform: rotate(-90deg); }
+.pokemon-card.collapsed .spreads-container { display: none; }
+
+.show-more-row {
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px 10px;
+    border-top: 1px solid var(--border);
+}
+
+.show-more-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    padding: 4px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.show-more-btn:hover {
+    color: var(--text);
+    border-color: var(--border-light);
+}
+
+/* ── EV spread rows ── */
+.ev-spread {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    transition: background 0.1s;
+}
+
+.ev-spread:last-child { border-bottom: none; }
+.ev-spread:hover { background: var(--surface2); }
+
+.ev-values {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.ev-stat {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.ev-stat.nature {
+    background: var(--purple-dim);
+    border-color: var(--purple);
+    border-opacity: 0.3;
+    color: var(--purple);
+    font-weight: 600;
+}
+
+/* ── Usage actions (% + copy btn) ── */
+.usage-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.usage-percent {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 3px;
+    min-width: 60px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.usage-percent.high-usage {
+    background: var(--red-dim);
+    color: var(--red);
+}
+
+.usage-percent.medium-usage {
+    background: var(--amber-dim);
+    color: var(--amber);
+}
+
+.usage-percent.low-usage {
+    background: var(--green-dim);
+    color: var(--green);
+}
+
+.copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.copy-btn:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── Loading & Error ── */
+.loading-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.loading-dots::after {
+    content: "";
+    animation: dots 1.4s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%   { content: ""; }
+    25%  { content: "."; }
+    50%  { content: ".."; }
+    75%  { content: "..."; }
+    100% { content: ""; }
+}
+
+.error-banner {
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    color: var(--red);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+/* ── Animations ── */
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+    .app-header { flex-wrap: wrap; gap: 12px; }
+    .data-controls { grid-template-columns: 1fr 1fr; }
+    .stats-bar { flex-direction: column; }
+    .ev-spread { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .usage-actions { align-self: flex-end; }
+}

@@ -1,0 +1,564 @@
+{
+  "last_updated": "2026-07-03T14:13:50Z",
+  "available_months": [
+    "2026-06",
+    "2026-05",
+    "2026-04",
+    "2026-03",
+    "2026-02"
+  ],
+  "files": [
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-06",
+      "regulation": "regmb",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-05",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-04",
+      "regulation": "regma",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-03",
+      "regulation": "regi",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo1",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "0"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regf",
+      "format": "bo3",
+      "elo": "1760"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "0"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1500"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1630"
+    },
+    {
+      "month": "2026-02",
+      "regulation": "regi",
+      "format": "bo1",
+      "elo": "1760"
+    }
+  ]
+}

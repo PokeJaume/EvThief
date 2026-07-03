@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Spread Analyzer — Smogon VGC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+    <div class="app-wrapper">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-title">
+                <h1>EV Spread Analyzer</h1>
+                <span class="title-badge">Smogon VGC</span>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <span class="toggle-icon" id="themeIcon">☀️</span>
+                <span id="themeLabel">Modo claro</span>
+            </button>
+        </header>
+
+        <!-- Data loader -->
+        <div class="card">
+            <p class="card-title">Cargar datos</p>
+            <div class="data-controls">
+                <div class="control-group">
+                    <label for="monthSelect">Mes / Año</label>
+                    <select id="monthSelect" class="data-select"></select>
+                </div>
+                <div class="control-group">
+                    <label for="formatSelect">Formato</label>
+                    <select id="formatSelect" class="data-select">
+                        <option value="bo1">Best of 1 (BO1)</option>
+                        <option value="bo3" selected>Best of 3 (BO3)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="regulationSelect">Regulación</label>
+                    <select id="regulationSelect" class="data-select"></select>
+                </div>
+                <div class="control-group">
+                    <label for="eloSelect">Nivel ELO</label>
+                    <select id="eloSelect" class="data-select"></select>
+                </div>
+            </div>
+            <button id="loadDataBtn" class="load-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Cargar datos
+            </button>
+            <div id="loadStatus"></div>
+        </div>
+
+        <!-- Search & filters -->
+        <div class="card">
+            <p class="card-title">Filtros</p>
+            <div class="search-grid">
+                <input type="text" id="searchPokemon" class="search-input" placeholder="Pokémon (ej: Urshifu, Incineroar...)">
+                <input type="text" id="searchEVs" class="search-input" placeholder="EVs (ej: Spe>120, nature:Adamant, 252/0/4/0/0/252)">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn" id="applyFilterBtn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Aplicar filtros
+                </button>
+                <button class="filter-btn" onclick="sortBy('usage')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    Por uso
+                </button>
+                <button class="filter-btn" onclick="sortBy('name')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    Por nombre
+                </button>
+                <button class="filter-btn" onclick="toggleOnlyPopular()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Solo populares (&gt;5%)
+                </button>
+                <button class="filter-btn" onclick="toggleHelpPanel()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Ayuda
+                </button>
+            </div>
+
+            <div id="helpPanel" class="help-panel" style="display:none;">
+                <h4>Sintaxis de filtros</h4>
+                <div class="help-content">
+                    <div class="help-item">
+                        <strong>Formato completo</strong>
+                        <code>252/0/4/0/0/252</code>
+                        <span class="help-desc">HP / Atk / Def / SpA / SpD / Spe exactos</span>
+                    </div>
+                    <div class="help-item">
+                        <strong>Por stat</strong>
+                        <code>HP:252,Atk:252</code>
+                        <span class="help-desc">Valores exactos por estadística</span>
+                    </div>
+                    <div class="help-item">
+                        <strong>Comparaciones</strong>
+                        <code>Spe&gt;120</code> <code>HP&lt;200</code> <code>Atk=252</code>
+                        <span class="help-desc">Operadores: &gt; &lt; = &gt;= &lt;= !=</span>
+                    </div>
+                    <div class="help-item">
+                        <strong>Naturaleza</strong>
+                        <code>nature:Adamant</code> <code>nature!=Jolly</code>
+                    </div>
+                    <div class="help-item">
+                        <strong>Combinado</strong>
+                        <code>Spe&gt;120,HP&lt;200,nature:Adamant</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats summary -->
+        <div id="statsummary" class="stats-bar" style="display:none;">
+            <div class="stat-block">
+                <div class="stat-value" id="totalPokemon">0</div>
+                <div class="stat-label">Pokémon</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value" id="totalSpreads">0</div>
+                <div class="stat-label">EV Spreads</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-value" id="avgSpreads">0</div>
+                <div class="stat-label">Media por Pokémon</div>
+            </div>
+        </div>
+
+        <!-- States -->
+        <div id="loading" class="loading-state" style="display:none;">
+            <span class="loading-dots">Cargando datos</span>
+        </div>
+        <div id="error" class="error-banner" style="display:none;"></div>
+
+        <!-- Results -->
+        <div id="results" class="results-section"></div>
+
+    </div>
+
+    <script src="script.js?v=3"></script>
+</body>
+</html>
