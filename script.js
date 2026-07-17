@@ -100,7 +100,7 @@ async function populateRegulationsAndElos() {
             const option = document.createElement('option');
             option.value = elo;
             option.textContent = elo;
-            if (index === 1) option.selected = true; // Select second option (usually 1500)
+            if (index === 1) option.selected = true; // Select second option (usually 1760)
             eloSelect.appendChild(option);
         });
         
@@ -245,7 +245,7 @@ function populateFromManifest() {
         const opt = document.createElement('option');
         opt.value = elo;
         opt.textContent = elo;
-        if (i === 1) opt.selected = true; // default: 1500
+        if (i === 1) opt.selected = true; // default: 1760
         eloSelect.appendChild(opt);
     });
 }
